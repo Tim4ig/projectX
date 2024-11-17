@@ -8,6 +8,9 @@ file(GLOB_RECURSE SRC_FILES "src/*.cpp")
 file(GLOB_RECURSE INC_FILES "src/*.hpp")
 
 include_directories("src")
+include_directories("src/core")
+include_directories("src/core/utils")
+include_directories("src/core/window")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")
