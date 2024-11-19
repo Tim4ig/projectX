@@ -17,6 +17,7 @@ namespace x::core
         void OpenSync(std::wstring title, int width, int height);
         void OpenAsync(std::wstring title, int width, int height);
         bool IsOpen() const { return m_open; }
+        HWND GetHandle() const { return m_hwnd; }
     private:
         HWND m_hwnd = nullptr;
         std::future<void> m_thread;

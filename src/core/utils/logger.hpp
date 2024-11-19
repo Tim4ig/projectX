@@ -5,6 +5,12 @@
 #include <chrono>
 #include <mutex>
 #include <fstream>
+#include <format>
+
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+#include "core.hpp"
 
 constexpr auto COLOR_RED = "\033[31m";
 constexpr auto COLOR_GREEN = "\033[32m";
@@ -57,6 +63,21 @@ namespace x::core::utils
         void Exception(T... message)
         {
             m_Log("EXCEPTION", COLOR_RED, message...);
+        }
+
+        template<class F, class... T>
+        std::string F(F format, T... args)
+        {
+            return std::format(format, args...);
+        }
+
+        static std::string ToA(std::wstring wmessage)
+        {
+            const auto sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wmessage.c_str(), -1, nullptr, 0, nullptr, nullptr);
+
+            std::string result(sizeNeeded, 0);
+            WideCharToMultiByte(CP_UTF8, 0, wmessage.c_str(), -1, result.data(), sizeNeeded, nullptr, nullptr);
+            return result;
         }
 
         void NL()

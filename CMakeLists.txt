@@ -34,4 +34,4 @@ create_source_group("${SRC_FILES}" "Source Files")
 create_source_group("${INC_FILES}" "Header Files")
 
 add_executable(${PROJECT_NAME} ${SRC_FILES} ${INC_FILES})
-target_link_libraries(${PROJECT_NAME} PRIVATE)
+target_link_libraries(${PROJECT_NAME} PRIVATE d3d11 dxgi)

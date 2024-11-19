@@ -9,7 +9,7 @@ namespace x::core
     {
         if (m_thread.valid())
         {
-            m_thread.wait();
+            m_open = false;
         }
 
         if (m_hwnd != nullptr)
@@ -58,7 +58,7 @@ namespace x::core
         m_open = true;
 
         MSG msg = {};
-        while (GetMessageW(&msg, nullptr, 0, 0))
+        while (GetMessageW(&msg, nullptr, 0, 0) && m_open)
         {
             TranslateMessage(&msg);
             DispatchMessageW(&msg);

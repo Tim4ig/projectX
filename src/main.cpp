@@ -1,8 +1,6 @@
 
 #include "core.hpp"
 
-#include <iostream>
-
 int main()
 {
     try
@@ -10,9 +8,10 @@ int main()
         x::core::Core core;
         core.Init();
         core.StartLoop();
+        return 0;
     }
-    catch (const x::core::utils::Exception& e)
+    catch (...)
     {
-        std::cout << e.ToString() << '\n';
+        logger.Error("Unhandled exception occurred. Exiting...");
     }
 }
