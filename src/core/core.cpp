@@ -20,6 +20,27 @@ namespace x::core
     {
         while (m_window.IsOpen())
         {
+            static bool fs = false;
+            static POINT p = { 800,600 };
+
+            if (GetAsyncKeyState('A'))
+            {
+                fs = 1;
+                m_renderer->SetResolution(p, fs);
+            }
+
+            if (GetAsyncKeyState('D'))
+            {
+                fs = 0;
+                m_renderer->SetResolution(p, fs);
+            }
+
+            if (GetAsyncKeyState('S'))
+            {
+                p = { 1920, 1080 };
+                m_renderer->SetResolution(p, fs);
+            }
+
             m_renderer->BeginFrame();
             m_renderer->Clear();
             m_renderer->EndFrame();

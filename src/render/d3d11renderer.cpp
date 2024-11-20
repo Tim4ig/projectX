@@ -7,6 +7,7 @@ namespace x::render
 {
     D3D11Renderer::D3D11Renderer(ComPtr<ID3D11Device> device, const HWND window) : m_device(device), m_window(window)
     {
+        m_InitWindowStyles();
         m_Init();
     }
 
@@ -28,6 +29,41 @@ namespace x::render
 
         m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_settings.clearColor);
         m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    }
+
+    void D3D11Renderer::SetResolution(POINT size, bool fullscreen)
+    {
+        if (m_framestate == true) XTHROW("frame already started");
+
+        m_viewport.Width = size.x;
+        m_viewport.Height = size.y;
+
+        m_context->OMSetRenderTargets(0, nullptr, nullptr);
+        m_renderTargetView.Reset();
+        m_depthStencilView.Reset();
+
+        auto hr = S_OK;
+
+        if (fullscreen != m_fullscreen)
+        {
+            m_fullscreen = fullscreen;
+            if (!m_fullscreen)
+            {
+                m_InitWindowStyles();
+            }
+
+            m_InitSwapChain();
+        }
+
+        m_fullscreen = fullscreen;
+        hr = m_swapChain->ResizeBuffers(0, m_viewport.Width, m_viewport.Height, DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
+
+        if (!m_fullscreen)
+        {
+            SetWindowPos(m_window, nullptr, 0, 0, m_viewport.Width, m_viewport.Height, SWP_NOMOVE | SWP_NOZORDER);
+        }
+
+        m_InitBuffers();
     }
 
     void D3D11Renderer::BeginFrame()
@@ -76,6 +112,13 @@ namespace x::render
     {
         auto hr = S_OK;
 
+        if (m_swapChain)
+        {
+            BOOL fullscreen;
+            hr = m_swapChain->GetFullscreenState(&fullscreen, nullptr) HTHROW("failed to get fullscreen state");
+            if (fullscreen) hr = m_swapChain->SetFullscreenState(FALSE, nullptr) HTHROW("failed to set fullscreen state");
+        }
+
         DXGI_SWAP_CHAIN_DESC1 dscd1 = {};
         dscd1.BufferCount = 2;
         dscd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -86,7 +129,7 @@ namespace x::render
         dscd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC dscfd = {};
-        dscfd.Windowed = TRUE;
+        dscfd.Windowed = !m_fullscreen;
 
         hr = m_dxgiFactory->CreateSwapChainForHwnd(
             m_device.Get(),
@@ -120,5 +163,26 @@ namespace x::render
             hr = m_device->CreateTexture2D(&dstd, nullptr, &dst) HTHROW("failed to create depth stencil texture");
             hr = m_device->CreateDepthStencilView(dst.Get(), nullptr, &m_depthStencilView) HTHROW("failed to create depth stencil view");
         }
+    }
+
+    void D3D11Renderer::m_InitWindowStyles()
+    {
+        auto style = GetWindowLongPtr(m_window, GWL_STYLE);
+        auto exStyle = GetWindowLongPtr(m_window, GWL_EXSTYLE);
+
+        style |= WS_OVERLAPPEDWINDOW;
+
+        style &= ~WS_SIZEBOX;
+        style &= ~WS_THICKFRAME;
+
+        style &= ~WS_MAXIMIZEBOX;
+
+        SetWindowLongPtr(m_window, GWL_STYLE, style);
+
+        exStyle &= ~WS_EX_APPWINDOW;
+        exStyle |= WS_EX_OVERLAPPEDWINDOW;
+        SetWindowLongPtr(m_window, GWL_EXSTYLE, exStyle);
+
+        SetWindowPos(m_window, HWND_TOP, 0, 0, 800, 600, SWP_FRAMECHANGED | SWP_NOMOVE);
     }
 }

@@ -18,6 +18,8 @@ namespace x::render
         void SetClearColor(unsigned int rgba);
         void Clear();
 
+        void SetResolution(POINT size, bool fullscreen);
+
         void BeginFrame();
         void EndFrame();
     private:
@@ -35,6 +37,7 @@ namespace x::render
         D3D11_VIEWPORT m_viewport;
 
         bool m_framestate = false;
+        bool m_fullscreen = false;
 
         struct {
             bool vsync = false;
@@ -44,5 +47,6 @@ namespace x::render
         void m_Init();
         void m_InitSwapChain();
         void m_InitBuffers();
+        void m_InitWindowStyles();
     };
 }
