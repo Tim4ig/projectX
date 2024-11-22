@@ -7,10 +7,8 @@ namespace x::core
 {
     Window::~Window()
     {
-        if (m_thread.valid())
-        {
-            m_open = false;
-        }
+        m_open = false;
+        ThreadManager::GetDefaultManager()->Wait(m_threadId);
 
         if (m_hwnd != nullptr)
         {
@@ -20,8 +18,8 @@ namespace x::core
 
     void Window::OpenAsync(std::wstring title, const int width, const int height)
     {
-        m_thread = std::async([&]() -> void {this->OpenSync(title, width, height); });
-        while (!m_open) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        m_threadId = ThreadManager::GetDefaultManager()->Start([&] {this->OpenSync(title, width, height); });
+        while (ThreadManager::GetDefaultManager()->IsRunning(m_threadId) && !m_open) std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     void Window::OpenSync(std::wstring title, const int width, const int height)

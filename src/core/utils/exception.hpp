@@ -71,7 +71,7 @@ namespace x::core::utils
             fullMessage += "\nMessage: " + message;
             fullMessage += "\nIn function: " + function;
             fullMessage += "\nOn line: " + std::to_string(line);
-            fullMessage += "\nIn thread: " + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ((mainThreadId != std::this_thread::get_id()) ? " (Main thread)" :
+            fullMessage += "\nIn thread: " + std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id())) + ((mainThreadId == std::this_thread::get_id()) ? " (Main thread)" :
                 " \nWARNING: Exception thrown from a different thread than the main thread!");
             fullMessage += "\nStack trace:\n" + stackTrace;
             fullMessage += "\n----------------------------------------------------------------";

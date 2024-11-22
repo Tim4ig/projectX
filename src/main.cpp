@@ -1,32 +1,22 @@
 
 #include "core.hpp"
 
-#include "thread/thread_manager.hpp"
-
-int main() try
+int main()
 {
-    x::core::ThreadManager threadManager;
-
-    const auto task = threadManager.Start([]()
+    try
     {
-        while (true)
-        {
-            std::cout << "Thread 1\n";
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (rand() % 15 == 1)
-            {
-                std::cout << "Throwing exception\n";
-                throw std::exception("test");
-            }
-        }
-    });
-
-    threadManager.WaitAll();
+        x::core::Core core;
+        core.Init();
+        core.StartLoop();
+    }
+    catch (std::exception & e)
+    {
+        logger.Exception("[FATAL]", e.what());
+    }
+    catch (...)
+    {
+        logger.Exception("[FATAL]", "(UNKNOWN)");
+    }
 
     return 0;
-}
-catch (...)
-{
-    logger.Error("Unhandled exception occurred. Exiting...");
-    return 1;
 }

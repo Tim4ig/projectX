@@ -2,7 +2,7 @@
 #include "thread_manager.hpp"
 
 #include <ranges>
-#include <iostream>
+#include "exception.hpp"
 
 namespace x::core
 {
@@ -58,16 +58,33 @@ namespace x::core
         return m_running;
     }
 
+    ThreadManager::ThreadManager()
+    {
+        if (m_defaultManager)
+        {
+            XTHROW("ThreadManager already exists");
+        }
+    }
+
     ThreadManager::~ThreadManager()
     {
         WaitAll();
+    }
+
+    ThreadManager* ThreadManager::GetDefaultManager()
+    {
+        if (!m_defaultManager)
+        {
+            m_defaultManager = std::make_unique<ThreadManager>();
+        }
+        return m_defaultManager.get();
     }
 
     thread ThreadManager::Start(std::function<void()> function)
     {
         std::lock_guard lock(m_mutex);
 
-        unsigned int id = 1;
+        thread id = 1;
         while (m_poolIDs.contains(id)) ++id;
 
         m_pool.emplace(
@@ -81,7 +98,7 @@ namespace x::core
         return id;
     }
 
-    void ThreadManager::Wait(thread id)
+    void ThreadManager::Wait(const thread id)
     {
         if (m_pool.contains(id))
         {
@@ -89,7 +106,7 @@ namespace x::core
         }
     }
 
-    void ThreadManager::Free(thread id)
+    void ThreadManager::Free(const thread id)
     {
         if (m_pool.contains(id))
         {
@@ -98,7 +115,7 @@ namespace x::core
         }
     }
 
-    bool ThreadManager::IsRunning(thread id) const
+    bool ThreadManager::IsRunning(const thread id) const
     {
         if (m_pool.contains(id))
         {
@@ -132,6 +149,7 @@ namespace x::core
                 catch (...)
                 {
                     m_throwIDs.insert(id);
+                    m_wasException = false;
                     std::rethrow_exception(std::current_exception());
                 }
             }
@@ -139,4 +157,6 @@ namespace x::core
             m_wasException = false;
         }
     }
+
+    std::unique_ptr<ThreadManager> ThreadManager::m_defaultManager = nullptr;
 }

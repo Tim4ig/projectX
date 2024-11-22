@@ -8,25 +8,24 @@
 
 namespace x::core
 {
-    using thread = const unsigned int;
+    using thread = unsigned int;
 
     class ThreadManager
     {
     public:
-        ThreadManager() = default;
+        ThreadManager();
         ~ThreadManager();
 
-        thread Start(std::function<void()> function);
+        static ThreadManager* GetDefaultManager();
 
+        thread Start(std::function<void()> function);
         void Wait(thread id);
         void Free(thread id);
         bool IsRunning(thread id) const;
 
         void WaitAll();
-
         void Update();
     private:
-
         class ThreadObject
         {
         public:
@@ -48,8 +47,10 @@ namespace x::core
 
         std::mutex m_mutex;
         std::atomic_bool m_wasException = false;
-        std::set<unsigned int> m_poolIDs;
-        std::set<unsigned int> m_throwIDs;
-        std::unordered_map<unsigned int, ThreadObject> m_pool;
+        std::set<thread> m_poolIDs;
+        std::set<thread> m_throwIDs;
+        std::unordered_map<thread, ThreadObject> m_pool;
+
+        static std::unique_ptr<ThreadManager> m_defaultManager;
     };
 }

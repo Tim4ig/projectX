@@ -7,6 +7,7 @@
 
 #include <string>
 #include <future>
+#include "thread/thread_manager.hpp"
 
 namespace x::core
 {
@@ -16,11 +17,12 @@ namespace x::core
         ~Window();
         void OpenSync(std::wstring title, int width, int height);
         void OpenAsync(std::wstring title, int width, int height);
-        bool IsOpen() const { return m_open; }
-        HWND GetHandle() const { return m_hwnd; }
+        [[nodiscard]] bool IsOpen() const { return m_open; }
+        [[nodiscard]] HWND GetHandle() const { return m_hwnd; }
     private:
+        thread m_threadId = 0;
+
         HWND m_hwnd = nullptr;
-        std::future<void> m_thread;
         bool m_open = false;
 
         static LRESULT __stdcall WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
