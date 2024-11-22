@@ -171,12 +171,9 @@ namespace x::render
         auto exStyle = GetWindowLongPtr(m_window, GWL_EXSTYLE);
 
         style |= WS_OVERLAPPEDWINDOW;
-
         style &= ~WS_SIZEBOX;
         style &= ~WS_THICKFRAME;
-
         style &= ~WS_MAXIMIZEBOX;
-
         SetWindowLongPtr(m_window, GWL_STYLE, style);
 
         exStyle &= ~WS_EX_APPWINDOW;
