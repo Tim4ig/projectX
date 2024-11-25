@@ -1,11 +1,10 @@
-
 #include "d3d11renderer.hpp"
 
 #include "exception.hpp"
 
 namespace x::render
 {
-    Renderer::Renderer(ComPtr<ID3D11Device> device, const HWND window) : m_device(device), m_window(window)
+    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_device(device), m_window(window)
     {
         m_InitWindowStyles();
         m_Init();
@@ -25,7 +24,8 @@ namespace x::render
 
     void Renderer::Clear()
     {
-        if (m_framestate == false) XTHROW("frame not started");
+        if (m_framestate == false)
+            XTHROW("frame not started");
 
         m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_settings.clearColor);
         m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -33,7 +33,8 @@ namespace x::render
 
     void Renderer::SetResolution(POINT size, bool fullscreen)
     {
-        if (m_framestate == true) XTHROW("frame already started");
+        if (m_framestate == true)
+            XTHROW("frame already started");
 
         m_viewport.Width = size.x;
         m_viewport.Height = size.y;
@@ -68,7 +69,8 @@ namespace x::render
 
     void Renderer::BeginFrame()
     {
-        if (m_framestate == true) XTHROW("frame already started");
+        if (m_framestate == true)
+            XTHROW("frame already started");
         m_framestate = true;
 
         m_context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
@@ -77,7 +79,8 @@ namespace x::render
 
     void Renderer::EndFrame()
     {
-        if (m_framestate == false) XTHROW("frame already ended");
+        if (m_framestate == false)
+            XTHROW("frame already ended");
         m_framestate = false;
 
         auto hr = S_OK;
@@ -86,7 +89,8 @@ namespace x::render
 
     void Renderer::Bind(Shader& shader)
     {
-        if (m_framestate == false) XTHROW("frame not started");
+        if (m_framestate == false)
+            XTHROW("frame not started");
 
         // test bind implementation
         {
@@ -98,7 +102,8 @@ namespace x::render
 
     void Renderer::Draw(Drawable& drawable)
     {
-        if (m_framestate == false) XTHROW("frame not started");
+        if (m_framestate == false)
+            XTHROW("frame not started");
 
         // test draw implementation
         {

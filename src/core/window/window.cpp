@@ -1,4 +1,3 @@
-
 #include "window.hpp"
 
 #include "exception.hpp"
@@ -16,13 +15,13 @@ namespace x::core
         }
     };
 
-    void Window::OpenAsync(std::wstring title, const int width, const int height)
+    void Window::OpenAsync(const std::wstring& title, const int width, const int height)
     {
-        m_threadId = ThreadManager::GetDefaultManager()->Start([&] {this->OpenSync(title, width, height); });
+        m_threadId = ThreadManager::GetDefaultManager()->Start([&] { this->OpenSync(title, width, height); });
         while (ThreadManager::GetDefaultManager()->IsRunning(m_threadId) && !m_open) std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    void Window::OpenSync(std::wstring title, const int width, const int height)
+    void Window::OpenSync(const std::wstring& title, const int width, const int height)
     {
         WNDCLASS wc = {};
         wc.hCursor = LoadCursor(nullptr, IDC_ARROW);

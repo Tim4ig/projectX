@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <thread>
@@ -18,13 +17,14 @@ namespace x::core
 
         static ThreadManager* GetDefaultManager();
 
-        thread Start(std::function<void()> function);
+        thread Start(const std::function<void()>&& function);
         void Wait(thread id);
         void Free(thread id);
         bool IsRunning(thread id) const;
 
         void WaitAll();
         void Update();
+
     private:
         class ThreadObject
         {
@@ -35,6 +35,7 @@ namespace x::core
             void Wait();
             void RethrowException() const;
             bool IsRunning() const;
+
         private:
             std::thread m_thread;
             std::function<void()> m_worker;

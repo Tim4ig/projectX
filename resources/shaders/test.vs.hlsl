@@ -1,4 +1,3 @@
-
 struct VSIN
 {
     float3 position : POSITION;

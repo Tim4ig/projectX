@@ -1,7 +1,7 @@
-
 #include "d3d11shader.hpp"
 
 #include <d3dcompiler.h>
+
 #include "exception.hpp"
 
 namespace x::render

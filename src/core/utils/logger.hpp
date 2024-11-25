@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <iostream>
@@ -35,37 +34,37 @@ namespace x::core::utils
             out.m_file.open(path);
         }
 
-        template<class... T>
+        template <class... T>
         void Info(T... message)
         {
             m_Log("INFO", COLOR_RESET, message...);
         }
 
-        template<class... T>
+        template <class... T>
         void Error(T... message)
         {
             m_Log("ERROR", COLOR_RED, message...);
         }
 
-        template<class... T>
+        template <class... T>
         void Debug(T... message)
         {
             m_Log("DEBUG", COLOR_BLUE, message...);
         }
 
-        template<class... T>
+        template <class... T>
         void Warning(T... message)
         {
             m_Log("WARNING", COLOR_YELLOW, message...);
         }
 
-        template<class... T>
+        template <class... T>
         void Exception(T... message)
         {
             m_Log("EXCEPTION", COLOR_RED, message...);
         }
 
-        template<class F, class... T>
+        template <class F, class... T>
         std::string F(F format, T... args)
         {
             return std::format(format, args...);
@@ -85,7 +84,7 @@ namespace x::core::utils
             out << '\n';
         }
 
-        static std::string FuncPrefix(std::string input)
+        static std::string FuncPrefix(const std::string& input)
         {
             const auto lastDoubleColon = input.rfind("::");
 
@@ -94,8 +93,7 @@ namespace x::core::utils
                 return "";
             }
 
-            const auto method = input.substr(lastDoubleColon + 2);
-
+            auto method = input.substr(lastDoubleColon + 2);
             const auto secondLastDoubleColon = input.rfind("::", lastDoubleColon - 1);
 
             if (secondLastDoubleColon == std::string::npos)
@@ -114,7 +112,7 @@ namespace x::core::utils
         class output
         {
         public:
-            template<class T>
+            template <class T>
             output& operator<<(T t)
             {
                 std::cout << t;
@@ -136,7 +134,7 @@ namespace x::core::utils
             return oss.str();
         }
 
-        template<class... T>
+        template <class... T>
         void m_Log(const char* type, const char* color, T... message)
         {
             std::lock_guard lock(m_mutex);

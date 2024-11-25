@@ -1,7 +1,7 @@
-
 #include "thread_manager.hpp"
 
 #include <ranges>
+
 #include "exception.hpp"
 
 namespace x::core
@@ -80,7 +80,7 @@ namespace x::core
         return m_defaultManager.get();
     }
 
-    thread ThreadManager::Start(std::function<void()> function)
+    thread ThreadManager::Start(const std::function<void()>&& function)
     {
         std::lock_guard lock(m_mutex);
 
@@ -90,7 +90,7 @@ namespace x::core
         m_pool.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(id),
-            std::forward_as_tuple(std::move(function), std::ref(m_wasException))
+            std::forward_as_tuple(function, std::ref(m_wasException))
         );
 
         m_poolIDs.insert(id);
@@ -127,7 +127,7 @@ namespace x::core
 
     void ThreadManager::WaitAll()
     {
-        for (auto &obj : m_pool | std::views::values)
+        for (auto& obj : m_pool | std::views::values)
         {
             obj.Wait();
         }

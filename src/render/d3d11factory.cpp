@@ -1,7 +1,7 @@
-
 #include "d3d11factory.hpp"
 
 #include "exception.hpp"
+#include "settings.hpp"
 
 namespace x::render
 {

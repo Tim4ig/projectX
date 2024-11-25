@@ -1,4 +1,3 @@
-
 #include "core.hpp"
 
 #include "logger.hpp"
@@ -25,11 +24,11 @@ namespace x::core
 
         m_shaderTest->Load(L"Debug/test.vs.cso", L"Debug/test.ps.cso", nullptr, 0);
 
-        float vertices[] =
+        constexpr float vertices[] =
         {
-            -0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
+            -0.5f, -0.5f,  0.0f,
+             0.0f,  0.5f,  0.0f,
+             0.5f, -0.5f,  0.0f,
         };
 
         m_drawableTest->m_SetVertices(vertices, 3, sizeof(float) * 3 * 3);

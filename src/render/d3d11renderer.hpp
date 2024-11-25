@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <dxgi1_2.h>
@@ -15,7 +14,7 @@ namespace x::render
     class Renderer
     {
     public:
-        Renderer(ComPtr<ID3D11Device> device, HWND window);
+        Renderer(const ComPtr<ID3D11Device>& device, HWND window);
         ~Renderer();
 
         void SetResolution(POINT size, bool fullscreen);
@@ -27,6 +26,7 @@ namespace x::render
 
         void Draw(Drawable& drawable);
         void Bind(Shader& shader);
+
     private:
         HWND m_window;
 
@@ -44,9 +44,10 @@ namespace x::render
         bool m_framestate = false;
         bool m_fullscreen = false;
 
-        struct {
+        struct
+        {
             bool vsync = false;
-            float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+            float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
         } m_settings;
 
         void m_Init();

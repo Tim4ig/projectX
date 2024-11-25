@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <d3d11.h>
@@ -15,6 +14,7 @@ namespace x::render
         explicit Shader(const ComPtr<ID3D11Device>& device);
 
         void Load(const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements);
+
     private:
         ComPtr<ID3D11Device> m_device;
 

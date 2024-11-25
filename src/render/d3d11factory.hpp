@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <d3d11.h>
@@ -22,6 +21,7 @@ namespace x::render
         std::unique_ptr<Renderer> CreateRenderer(HWND window);
         std::unique_ptr<Drawable> CreateDrawable();
         std::unique_ptr<Shader> CreateShader();
+
     private:
         ComPtr<ID3D11Debug> m_debug;
         ComPtr<ID3D11Device> m_device;

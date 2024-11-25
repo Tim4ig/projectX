@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <stacktrace>
@@ -25,6 +24,7 @@ namespace x::core::utils
         {
             return trace;
         }
+
     private:
         std::string trace;
     };

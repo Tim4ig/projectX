@@ -1,12 +1,9 @@
-
 #pragma once
 
 #include <memory>
 
 #include "window.hpp"
-
 #include "thread/thread_manager.hpp"
-
 #include "render/d3d11factory.hpp"
 #include "render/d3d11renderer.hpp"
 #include "render/resources/d3d11drawable.hpp"
@@ -20,6 +17,7 @@ namespace x::core
 
         void Init();
         void StartLoop();
+
     private:
         std::unique_ptr<Window> m_window;
         ThreadManager* m_threadManager = nullptr;
@@ -29,6 +27,7 @@ namespace x::core
 
         bool m_UserLoop();
         bool m_SystemLoop();
+
     private:
         std::unique_ptr<render::Drawable> m_drawableTest;
         std::unique_ptr<render::Shader> m_shaderTest;

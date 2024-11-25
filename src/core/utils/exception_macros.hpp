@@ -1,4 +1,3 @@
-
 #pragma once
 
 #define THROW_MESSAGE_DEBUG(e) \

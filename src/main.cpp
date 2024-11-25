@@ -1,4 +1,3 @@
-
 #include "core.hpp"
 #include "logger.hpp"
 
@@ -10,7 +9,7 @@ int main()
         core.Init();
         core.StartLoop();
     }
-    catch (std::exception & e)
+    catch (std::exception& e)
     {
         logger.Exception("[FATAL]", e.what());
     }
