@@ -5,23 +5,28 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "resources/d3d11drawable.hpp"
+#include "resources/d3d11shader.hpp"
+
 using Microsoft::WRL::ComPtr;
 
 namespace x::render
 {
-    class D3D11Renderer
+    class Renderer
     {
     public:
-        D3D11Renderer(ComPtr<ID3D11Device> device, HWND window);
-        ~D3D11Renderer();
-
-        void SetClearColor(unsigned int rgba);
-        void Clear();
+        Renderer(ComPtr<ID3D11Device> device, HWND window);
+        ~Renderer();
 
         void SetResolution(POINT size, bool fullscreen);
+        void SetClearColor(unsigned int rgba);
 
+        void Clear();
         void BeginFrame();
         void EndFrame();
+
+        void Draw(Drawable& drawable);
+        void Bind(Shader& shader);
     private:
         HWND m_window;
 

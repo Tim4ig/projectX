@@ -5,41 +5,46 @@
 
 namespace x::render
 {
-    D3D11Factory::D3D11Factory()
+    Factory::Factory()
     {
         m_Init();
     }
 
-    D3D11Factory::~D3D11Factory()
+    std::unique_ptr<Renderer> Factory::CreateRenderer(HWND window)
     {
+        return std::make_unique<Renderer>(m_device, window);
     }
 
-
-    std::unique_ptr<D3D11Renderer> D3D11Factory::CreateRenderer(HWND window)
+    std::unique_ptr<Drawable> Factory::CreateDrawable()
     {
-        return std::make_unique<D3D11Renderer>(m_device, window);
+        return std::make_unique<Drawable>(m_device);
     }
 
-    void D3D11Factory::m_Init()
+    std::unique_ptr<Shader> Factory::CreateShader()
+    {
+        return std::make_unique<Shader>(m_device);
+    }
+
+    void Factory::m_Init()
     {
         m_InitFactory();
         m_SelectDefaultAdapter();
         m_InitDevice();
     }
 
-    void D3D11Factory::m_InitFactory()
+    void Factory::m_InitFactory()
     {
         auto hr = S_OK;
         hr = CreateDXGIFactory1(IID_PPV_ARGS(&m_dxgiFactory)) HTHROW("failed to create DXGI factory");
     }
 
-    void D3D11Factory::m_SelectDefaultAdapter()
+    void Factory::m_SelectDefaultAdapter()
     {
         // D3D11 automatically selects the default adapter if nullptr is passed
         m_adapter = nullptr;
     }
 
-    void D3D11Factory::m_InitDevice()
+    void Factory::m_InitDevice()
     {
         auto hr = S_OK;
 

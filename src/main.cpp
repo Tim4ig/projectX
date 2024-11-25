@@ -1,5 +1,6 @@
 
 #include "core.hpp"
+#include "logger.hpp"
 
 int main()
 {
@@ -15,7 +16,7 @@ int main()
     }
     catch (...)
     {
-        logger.Exception("[FATAL]", "(UNKNOWN)");
+        logger.Exception("[FATAL]", "Unknown exception occurred");
     }
 
     return 0;

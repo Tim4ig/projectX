@@ -7,18 +7,21 @@
 #include <wrl/client.h>
 
 #include "d3d11renderer.hpp"
+#include "resources/d3d11drawable.hpp"
+#include "resources/d3d11shader.hpp"
 
 using Microsoft::WRL::ComPtr;
 
 namespace x::render
 {
-    class D3D11Factory
+    class Factory
     {
     public:
-        D3D11Factory();
-        ~D3D11Factory();
+        Factory();
 
-        std::unique_ptr<D3D11Renderer> CreateRenderer(HWND window);
+        std::unique_ptr<Renderer> CreateRenderer(HWND window);
+        std::unique_ptr<Drawable> CreateDrawable();
+        std::unique_ptr<Shader> CreateShader();
     private:
         ComPtr<ID3D11Debug> m_debug;
         ComPtr<ID3D11Device> m_device;

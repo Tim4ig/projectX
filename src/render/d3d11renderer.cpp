@@ -5,17 +5,17 @@
 
 namespace x::render
 {
-    D3D11Renderer::D3D11Renderer(ComPtr<ID3D11Device> device, const HWND window) : m_device(device), m_window(window)
+    Renderer::Renderer(ComPtr<ID3D11Device> device, const HWND window) : m_device(device), m_window(window)
     {
         m_InitWindowStyles();
         m_Init();
     }
 
-    D3D11Renderer::~D3D11Renderer()
+    Renderer::~Renderer()
     {
     }
 
-    void D3D11Renderer::SetClearColor(const unsigned int rgba)
+    void Renderer::SetClearColor(const unsigned int rgba)
     {
         m_settings.clearColor[0] = ((rgba >> 24) & 0xFF) / 255.0f;
         m_settings.clearColor[1] = ((rgba >> 16) & 0xFF) / 255.0f;
@@ -23,7 +23,7 @@ namespace x::render
         m_settings.clearColor[3] = (rgba & 0xFF) / 255.0f;
     }
 
-    void D3D11Renderer::Clear()
+    void Renderer::Clear()
     {
         if (m_framestate == false) XTHROW("frame not started");
 
@@ -31,7 +31,7 @@ namespace x::render
         m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     }
 
-    void D3D11Renderer::SetResolution(POINT size, bool fullscreen)
+    void Renderer::SetResolution(POINT size, bool fullscreen)
     {
         if (m_framestate == true) XTHROW("frame already started");
 
@@ -66,7 +66,7 @@ namespace x::render
         m_InitBuffers();
     }
 
-    void D3D11Renderer::BeginFrame()
+    void Renderer::BeginFrame()
     {
         if (m_framestate == true) XTHROW("frame already started");
         m_framestate = true;
@@ -75,7 +75,7 @@ namespace x::render
         m_context->RSSetViewports(1, &m_viewport);
     }
 
-    void D3D11Renderer::EndFrame()
+    void Renderer::EndFrame()
     {
         if (m_framestate == false) XTHROW("frame already ended");
         m_framestate = false;
@@ -84,7 +84,35 @@ namespace x::render
         hr = m_swapChain->Present(m_settings.vsync, 0) HTHROW("failed to present swap chain");
     }
 
-    void D3D11Renderer::m_Init()
+    void Renderer::Bind(Shader& shader)
+    {
+        if (m_framestate == false) XTHROW("frame not started");
+
+        // test bind implementation
+        {
+            m_context->IASetInputLayout(shader.m_inputLayout.Get());
+            m_context->VSSetShader(shader.m_vertexShader.Get(), nullptr, 0);
+            m_context->PSSetShader(shader.m_pixelShader.Get(), nullptr, 0);
+        }
+    }
+
+    void Renderer::Draw(Drawable& drawable)
+    {
+        if (m_framestate == false) XTHROW("frame not started");
+
+        // test draw implementation
+        {
+            const auto mesh = static_cast<Mesh&>(drawable);
+
+            constexpr UINT offset = 0;
+            const auto stride = mesh.m_stride;
+            m_context->IASetVertexBuffers(0, 1, mesh.m_vertexBuffer.GetAddressOf(), &stride, &offset);
+            m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+            m_context->Draw(mesh.m_vertexCount, 0);
+        }
+    }
+
+    void Renderer::m_Init()
     {
         auto hr = S_OK;
         m_device->GetImmediateContext(&m_context);
@@ -108,7 +136,7 @@ namespace x::render
         m_InitBuffers();
     }
 
-    void D3D11Renderer::m_InitSwapChain()
+    void Renderer::m_InitSwapChain()
     {
         auto hr = S_OK;
 
@@ -141,7 +169,7 @@ namespace x::render
         ) HTHROW("failed to create swap chain");
     }
 
-    void D3D11Renderer::m_InitBuffers()
+    void Renderer::m_InitBuffers()
     {
         auto hr = S_OK;
 
@@ -165,7 +193,7 @@ namespace x::render
         }
     }
 
-    void D3D11Renderer::m_InitWindowStyles()
+    void Renderer::m_InitWindowStyles()
     {
         auto style = GetWindowLongPtr(m_window, GWL_STYLE);
         auto exStyle = GetWindowLongPtr(m_window, GWL_EXSTYLE);

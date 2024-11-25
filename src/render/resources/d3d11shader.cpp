@@ -6,23 +6,16 @@
 
 namespace x::render
 {
-    D3D11Shader::D3D11Shader(const ComPtr<ID3D11Device>& device, const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
-    {
-        m_Init(device, vertexShaderPath, pixelShaderPath, inputLayout, numElements);
-    }
-
-    D3D11Shader::~D3D11Shader()
+    Shader::Shader(const ComPtr<ID3D11Device>& device) : m_device(device)
     {
     }
 
-    void D3D11Shader::Bind(const ComPtr<ID3D11DeviceContext>& context) const
+    void Shader::Load(const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
     {
-        context->VSSetShader(m_vertexShader.Get(), nullptr, 0);
-        context->PSSetShader(m_pixelShader.Get(), nullptr, 0);
-        context->IASetInputLayout(m_inputLayout.Get());
+        m_Init(vertexShaderPath, pixelShaderPath, inputLayout, numElements);
     }
 
-    void D3D11Shader::m_Init(const ComPtr<ID3D11Device>& device, const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
+    void Shader::m_Init(const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
     {
         auto hr = S_OK;
         ComPtr<ID3DBlob> vertexShaderBlob;
@@ -31,35 +24,13 @@ namespace x::render
         hr = D3DReadFileToBlob(vertexShaderPath.c_str(), &vertexShaderBlob) HTHROW("Failed to read vertex shader file");
         hr = D3DReadFileToBlob(pixelShaderPath.c_str(), &pixelShaderBlob) HTHROW("Failed to read pixel shader file");
 
-        hr = D3DCompile(
-            vertexShaderBlob->GetBufferPointer(),
-            vertexShaderBlob->GetBufferSize(),
-            nullptr, nullptr, nullptr,
-            "main",
-            "vs_5_0",
-            NULL, NULL,
-            &vertexShaderBlob,
-            nullptr
-        ) HTHROW("Failed to compile vertex shader");
+        hr = m_device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &m_vertexShader) HTHROW("Failed to create vertex shader");
+        hr = m_device->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &m_pixelShader) HTHROW("Failed to create pixel shader");
 
-        hr = D3DCompile(
-            pixelShaderBlob->GetBufferPointer(),
-            pixelShaderBlob->GetBufferSize(),
-            nullptr, nullptr, nullptr,
-            "main",
-            "ps_5_0",
-            NULL, NULL,
-            &pixelShaderBlob,
-            nullptr
-        ) HTHROW("Failed to compile pixel shader");
-
-        hr = device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &m_vertexShader) HTHROW("Failed to create vertex shader");
-        hr = device->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &m_pixelShader) HTHROW("Failed to create pixel shader");
-
-        m_InitInputLayout(device, vertexShaderBlob, inputLayout, numElements);
+        m_InitInputLayout(vertexShaderBlob, inputLayout, numElements);
     }
 
-    void D3D11Shader::m_InitInputLayout(const ComPtr<ID3D11Device>& device, const ComPtr<ID3DBlob>& vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC* inputLayout, const UINT numElements)
+    void Shader::m_InitInputLayout(const ComPtr<ID3DBlob>& vertexShaderBlob, D3D11_INPUT_ELEMENT_DESC* inputLayout, const UINT numElements)
     {
         auto hr = S_OK;
 
@@ -113,11 +84,11 @@ namespace x::render
                 inputLayoutDesc.emplace_back(elementDesc);
             }
 
-            hr = device->CreateInputLayout(inputLayoutDesc.data(), inputLayoutDesc.size(), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &m_inputLayout);
+            hr = m_device->CreateInputLayout(inputLayoutDesc.data(), inputLayoutDesc.size(), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &m_inputLayout);
         }
         else
         {
-            hr = device->CreateInputLayout(
+            hr = m_device->CreateInputLayout(
                 inputLayout,
                 numElements,
                 vertexShaderBlob->GetBufferPointer(),

@@ -3,13 +3,13 @@
 
 #include <memory>
 
-#include "exception.hpp"
 #include "window.hpp"
 
 #include "thread/thread_manager.hpp"
 
 #include "render/d3d11factory.hpp"
 #include "render/d3d11renderer.hpp"
+#include "render/resources/d3d11drawable.hpp"
 
 namespace x::core
 {
@@ -24,10 +24,13 @@ namespace x::core
         std::unique_ptr<Window> m_window;
         ThreadManager* m_threadManager = nullptr;
 
-        std::unique_ptr<render::D3D11Factory> m_factory;
-        std::unique_ptr<render::D3D11Renderer> m_renderer;
+        std::unique_ptr<render::Factory> m_factory;
+        std::unique_ptr<render::Renderer> m_renderer;
 
         bool m_UserLoop();
         bool m_SystemLoop();
+    private:
+        std::unique_ptr<render::Drawable> m_drawableTest;
+        std::unique_ptr<render::Shader> m_shaderTest;
     };
 }
