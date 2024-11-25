@@ -26,9 +26,9 @@ namespace x::core
 
         constexpr float vertices[] =
         {
-            -0.5f, -0.5f,  0.0f,
-             0.0f,  0.5f,  0.0f,
-             0.5f, -0.5f,  0.0f,
+            -0.5f, -0.5f, 0.0f,
+            0.0f, 0.5f, 0.0f,
+            0.5f, -0.5f, 0.0f,
         };
 
         m_drawableTest->m_SetVertices(vertices, 3, sizeof(float) * 3 * 3);
