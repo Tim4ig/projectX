@@ -72,6 +72,15 @@ namespace x::core
             PostQuitMessage(0);
             break;
 
+        case WM_KEYDOWN:
+        {
+            if (wp == VK_RETURN || (GetAsyncKeyState(VK_MENU))) {
+                std::cout << "ALT+ENTER" << std::endl;
+                return 0;
+            }
+            break;
+        }
+
         default:
             break;
         }

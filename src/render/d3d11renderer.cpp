@@ -31,13 +31,13 @@ namespace x::render
         m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     }
 
-    void Renderer::SetResolution(POINT size, bool fullscreen)
+    void Renderer::SetResolution(const POINT size, const bool fullscreen)
     {
         if (m_framestate == true)
             XTHROW("frame already started");
 
-        m_viewport.Width = size.x;
-        m_viewport.Height = size.y;
+        m_viewport.Width = static_cast<FLOAT>(size.x);
+        m_viewport.Height = static_cast<FLOAT>(size.y);
 
         m_context->OMSetRenderTargets(0, nullptr, nullptr);
         m_renderTargetView.Reset();
@@ -57,11 +57,11 @@ namespace x::render
         }
 
         m_fullscreen = fullscreen;
-        hr = m_swapChain->ResizeBuffers(0, m_viewport.Width, m_viewport.Height, DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
+        hr = m_swapChain->ResizeBuffers(0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
 
         if (!m_fullscreen)
         {
-            SetWindowPos(m_window, nullptr, 0, 0, m_viewport.Width, m_viewport.Height, SWP_NOMOVE | SWP_NOZORDER);
+            SetWindowPos(m_window, nullptr, 0, 0, static_cast<int> (m_viewport.Width), static_cast<int>(m_viewport.Height), SWP_NOMOVE | SWP_NOZORDER);
         }
 
         m_InitBuffers();
@@ -156,8 +156,8 @@ namespace x::render
         dscd1.BufferCount = 2;
         dscd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         dscd1.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-        dscd1.Width = m_viewport.Width;
-        dscd1.Height = m_viewport.Height;
+        dscd1.Width = static_cast<UINT>(m_viewport.Width);
+        dscd1.Height = static_cast<UINT>(m_viewport.Height);
         dscd1.SampleDesc.Count = 1;
         dscd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
@@ -172,6 +172,10 @@ namespace x::render
             nullptr,
             &m_swapChain
         ) HTHROW("failed to create swap chain");
+
+        ComPtr<IDXGIFactory> dxgiFactory;
+        hr = m_swapChain->GetParent(IID_PPV_ARGS(&dxgiFactory)) HTHROW("failed to get DXGI factory");
+        hr = dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER) HTHROW("failed to make window association");
     }
 
     void Renderer::m_InitBuffers()
@@ -184,8 +188,8 @@ namespace x::render
 
         {
             D3D11_TEXTURE2D_DESC dstd = {};
-            dstd.Width = m_viewport.Width;
-            dstd.Height = m_viewport.Height;
+            dstd.Width = static_cast<UINT>(m_viewport.Width);
+            dstd.Height = static_cast<UINT> (m_viewport.Height);
             dstd.MipLevels = 1;
             dstd.ArraySize = 1;
             dstd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
