@@ -17,7 +17,7 @@ namespace x::render
         Renderer(const ComPtr<ID3D11Device>& device, HWND window);
         ~Renderer();
 
-        void SetResolution(POINT size, bool fullscreen);
+        void SetResolution(POINT size);
         void SetClearColor(unsigned int rgba);
 
         void Clear();
@@ -42,7 +42,6 @@ namespace x::render
         D3D11_VIEWPORT m_viewport;
 
         bool m_framestate = false;
-        bool m_fullscreen = false;
 
         struct
         {

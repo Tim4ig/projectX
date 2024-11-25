@@ -16,10 +16,10 @@ namespace x::render
 
     void Renderer::SetClearColor(const unsigned int rgba)
     {
-        m_settings.clearColor[0] = ((rgba >> 24) & 0xFF) / 255.0f;
-        m_settings.clearColor[1] = ((rgba >> 16) & 0xFF) / 255.0f;
-        m_settings.clearColor[2] = ((rgba >> 8) & 0xFF) / 255.0f;
-        m_settings.clearColor[3] = (rgba & 0xFF) / 255.0f;
+        m_settings.clearColor[0] = static_cast<float>(rgba >> 24 & 0xFF) / 255.0f;
+        m_settings.clearColor[1] = static_cast<float>(rgba >> 16 & 0xFF) / 255.0f;
+        m_settings.clearColor[2] = static_cast<float>(rgba >> 8 & 0xFF) / 255.0f;
+        m_settings.clearColor[3] = static_cast<float>(rgba & 0xFF) / 255.0f;
     }
 
     void Renderer::Clear()
@@ -31,7 +31,7 @@ namespace x::render
         m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     }
 
-    void Renderer::SetResolution(const POINT size, const bool fullscreen)
+    void Renderer::SetResolution(const POINT size)
     {
         if (m_framestate == true)
             XTHROW("frame already started");
@@ -44,25 +44,9 @@ namespace x::render
         m_depthStencilView.Reset();
 
         auto hr = S_OK;
-
-        if (fullscreen != m_fullscreen)
-        {
-            m_fullscreen = fullscreen;
-            if (!m_fullscreen)
-            {
-                m_InitWindowStyles();
-            }
-
-            m_InitSwapChain();
-        }
-
-        m_fullscreen = fullscreen;
         hr = m_swapChain->ResizeBuffers(0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
 
-        if (!m_fullscreen)
-        {
-            SetWindowPos(m_window, nullptr, 0, 0, static_cast<int> (m_viewport.Width), static_cast<int>(m_viewport.Height), SWP_NOMOVE | SWP_NOZORDER);
-        }
+        SetWindowPos(m_window, nullptr, 0, 0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), SWP_NOMOVE | SWP_NOZORDER);
 
         m_InitBuffers();
     }
@@ -102,8 +86,7 @@ namespace x::render
 
     void Renderer::Draw(Drawable& drawable)
     {
-        if (m_framestate == false)
-            XTHROW("frame not started");
+        if (m_framestate == false) XTHROW("frame not started");
 
         // test draw implementation
         {
@@ -162,7 +145,7 @@ namespace x::render
         dscd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC dscfd = {};
-        dscfd.Windowed = !m_fullscreen;
+        dscfd.Windowed = false;
 
         hr = m_dxgiFactory->CreateSwapChainForHwnd(
             m_device.Get(),
@@ -175,7 +158,7 @@ namespace x::render
 
         ComPtr<IDXGIFactory> dxgiFactory;
         hr = m_swapChain->GetParent(IID_PPV_ARGS(&dxgiFactory)) HTHROW("failed to get DXGI factory");
-        hr = dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER) HTHROW("failed to make window association");
+        hr = dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES) HTHROW("failed to make window association");
     }
 
     void Renderer::m_InitBuffers()
@@ -189,7 +172,7 @@ namespace x::render
         {
             D3D11_TEXTURE2D_DESC dstd = {};
             dstd.Width = static_cast<UINT>(m_viewport.Width);
-            dstd.Height = static_cast<UINT> (m_viewport.Height);
+            dstd.Height = static_cast<UINT>(m_viewport.Height);
             dstd.MipLevels = 1;
             dstd.ArraySize = 1;
             dstd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;

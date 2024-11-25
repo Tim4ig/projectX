@@ -73,13 +73,14 @@ namespace x::core
             break;
 
         case WM_KEYDOWN:
-        {
-            if (wp == VK_RETURN || (GetAsyncKeyState(VK_MENU))) {
-                std::cout << "ALT+ENTER" << std::endl;
-                return 0;
+            {
+                if (wp == VK_RETURN || (GetAsyncKeyState(VK_MENU)))
+                {
+                    std::cout << "ALT+ENTER" << std::endl;
+                    return 0;
+                }
+                break;
             }
-            break;
-        }
 
         default:
             break;

@@ -47,6 +47,16 @@ namespace x::core
     {
         if (!m_window->IsOpen()) return false;
 
+        if (GetAsyncKeyState(VK_SPACE))
+        {
+            m_renderer->SetResolution({ 2560, 1440 }, true);
+        }
+
+        if (GetAsyncKeyState(VK_RETURN))
+        {
+            m_renderer->SetResolution({ 800, 600 }, false);
+        }
+
         m_renderer->BeginFrame();
         m_renderer->Clear();
         m_renderer->Bind(*m_shaderTest);
