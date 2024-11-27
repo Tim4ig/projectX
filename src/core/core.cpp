@@ -1,7 +1,6 @@
 #include "core.hpp"
 
-#include "logger.hpp"
-#include "exception.hpp"
+#include "pch.h"
 
 namespace x::core
 {
@@ -19,7 +18,7 @@ namespace x::core
         m_window->OpenAsync(L"X Engine", 800, 600);
         m_renderer = m_factory->CreateRenderer(m_window->GetHandle());
 
-        m_drawableTest = m_factory->CreateDrawable();
+        m_drawableTest = m_factory->CreateObject();
         m_shaderTest = m_factory->CreateShader();
 
         m_shaderTest->Load(L"Debug/test.vs.cso", L"Debug/test.ps.cso", nullptr, 0);
@@ -31,7 +30,7 @@ namespace x::core
             0.5f, -0.5f, 0.0f,
         };
 
-        m_drawableTest->m_SetVertices(vertices, 3, sizeof(float) * 3 * 3);
+        //m_drawableTest->m_SetVertices(vertices, 3, sizeof(float) * 3 * 3);
     }
 
     void Core::StartLoop()
@@ -48,14 +47,10 @@ namespace x::core
         if (!m_window->IsOpen()) return false;
 
         if (GetAsyncKeyState(VK_SPACE))
-        {
-            m_renderer->SetResolution({ 2560, 1440 }, true);
-        }
+            m_renderer->SetResolution({2560, 1440});
 
         if (GetAsyncKeyState(VK_RETURN))
-        {
-            m_renderer->SetResolution({ 800, 600 }, false);
-        }
+            m_renderer->SetResolution({800, 600});
 
         m_renderer->BeginFrame();
         m_renderer->Clear();

@@ -2,7 +2,7 @@
 
 #include <d3dcompiler.h>
 
-#include "exception.hpp"
+#include "pch.h"
 
 namespace x::render
 {

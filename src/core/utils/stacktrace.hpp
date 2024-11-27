@@ -12,9 +12,7 @@ namespace x::core::utils
             for (const auto stacktrace = std::stacktrace::current(); auto frame : stacktrace)
             {
                 if (frame == *stacktrace.begin() || frame == *(stacktrace.begin() + 1))
-                {
                     continue;
-                }
 
                 trace += "    " + frame.description() + "\n";
             }

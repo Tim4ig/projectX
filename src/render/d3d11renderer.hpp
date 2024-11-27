@@ -6,6 +6,7 @@
 
 #include "resources/d3d11drawable.hpp"
 #include "resources/d3d11shader.hpp"
+#include "resources/d3d11constant.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -26,6 +27,7 @@ namespace x::render
 
         void Draw(Drawable& drawable);
         void Bind(Shader& shader);
+        void Bind(ConstantBuffer& constantBuffer, int slot);
 
     private:
         HWND m_window;

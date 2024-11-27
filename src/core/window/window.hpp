@@ -1,12 +1,6 @@
 #pragma once
 
-#include <string>
-#include <future>
-
-#define UNICODE
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
+#include "pch.h"
 #include "thread/thread_manager.hpp"
 
 namespace x::core

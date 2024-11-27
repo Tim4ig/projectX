@@ -89,17 +89,13 @@ namespace x::core::utils
             const auto lastDoubleColon = input.rfind("::");
 
             if (lastDoubleColon == std::string::npos)
-            {
                 return "";
-            }
 
             auto method = input.substr(lastDoubleColon + 2);
             const auto secondLastDoubleColon = input.rfind("::", lastDoubleColon - 1);
 
             if (secondLastDoubleColon == std::string::npos)
-            {
                 return method;
-            }
 
             const auto className = input.substr(secondLastDoubleColon + 2, lastDoubleColon - secondLastDoubleColon - 2);
 

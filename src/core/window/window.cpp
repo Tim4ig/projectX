@@ -1,6 +1,6 @@
 #include "window.hpp"
 
-#include "exception.hpp"
+#include "pch.h"
 
 namespace x::core
 {
@@ -10,9 +10,7 @@ namespace x::core
         ThreadManager::GetDefaultManager()->Wait(m_threadId);
 
         if (m_hwnd != nullptr)
-        {
             DestroyWindow(m_hwnd);
-        }
     };
 
     void Window::OpenAsync(const std::wstring& title, const int width, const int height)
@@ -48,9 +46,7 @@ namespace x::core
         ShowWindow(m_hwnd, SW_SHOWNORMAL);
 
         if (GetLastError() != 0)
-        {
             XTHROW("Failed to create window");
-        }
 
         m_open = true;
 

@@ -7,10 +7,10 @@ namespace x::world
     class Object : public render::Drawable
     {
     public:
-        explicit Object(const Microsoft::WRL::ComPtr<ID3D11Device>& device) : Drawable(device)
+        explicit Object(const ComPtr<ID3D11Device>& device) : Drawable(device)
         {
         }
 
-        virtual ~Object() = default;
+        ~Object() override = default;
     };
 }

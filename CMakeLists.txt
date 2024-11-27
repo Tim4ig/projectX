@@ -37,8 +37,11 @@ endfunction()
 create_source_group("${SRC_FILES}" "Source Files")
 create_source_group("${INC_FILES}" "Header Files")
 
-add_executable(${PROJECT_NAME} ${SRC_FILES} ${INC_FILES} ${SHADER_FILES})
+add_executable(${PROJECT_NAME} ${SRC_FILES} ${INC_FILES} "src/pch.h" ${SHADER_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE d3d11 dxgi d3dcompiler)
+
+target_precompile_headers(${PROJECT_NAME} PRIVATE "src/pch.h")
+source_group("Precompile Header File" FILES "src/pch.h")
 
 foreach(shader ${SHADER_FILES})
 

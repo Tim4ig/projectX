@@ -1,10 +1,10 @@
 #include "d3d11renderer.hpp"
 
-#include "exception.hpp"
+#include "pch.h"
 
 namespace x::render
 {
-    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_device(device), m_window(window)
+    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_window(window), m_device(device)
     {
         m_InitWindowStyles();
         m_Init();
@@ -84,9 +84,25 @@ namespace x::render
         }
     }
 
+    void Renderer::Bind(ConstantBuffer& constantBuffer, const int slot)
+    {
+        if (m_framestate == false)
+            XTHROW("frame not started");
+
+        // test bind implementation
+        {
+            if (constantBuffer.m_buffer)
+                m_context->VSSetConstantBuffers(slot, 1, constantBuffer.m_buffer.GetAddressOf());
+        }
+    }
+
     void Renderer::Draw(Drawable& drawable)
     {
-        if (m_framestate == false) XTHROW("frame not started");
+        if (m_framestate == false)
+            XTHROW("frame not started");
+
+        auto& constantBuffer = static_cast<ConstantBuffer&>(drawable);
+        Bind(constantBuffer, 1);
 
         // test draw implementation
         {
@@ -128,13 +144,6 @@ namespace x::render
     {
         auto hr = S_OK;
 
-        if (m_swapChain)
-        {
-            BOOL fullscreen;
-            hr = m_swapChain->GetFullscreenState(&fullscreen, nullptr) HTHROW("failed to get fullscreen state");
-            if (fullscreen) hr = m_swapChain->SetFullscreenState(FALSE, nullptr) HTHROW("failed to set fullscreen state");
-        }
-
         DXGI_SWAP_CHAIN_DESC1 dscd1 = {};
         dscd1.BufferCount = 2;
         dscd1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -145,7 +154,7 @@ namespace x::render
         dscd1.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
         DXGI_SWAP_CHAIN_FULLSCREEN_DESC dscfd = {};
-        dscfd.Windowed = false;
+        dscfd.Windowed = true;
 
         hr = m_dxgiFactory->CreateSwapChainForHwnd(
             m_device.Get(),

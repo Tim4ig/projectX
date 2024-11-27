@@ -1,7 +1,8 @@
 #include "d3d11factory.hpp"
 
-#include "exception.hpp"
+#include "pch.h"
 #include "settings.hpp"
+#include "object/object.hpp"
 
 namespace x::render
 {
@@ -15,9 +16,9 @@ namespace x::render
         return std::make_unique<Renderer>(m_device, window);
     }
 
-    std::unique_ptr<Drawable> Factory::CreateDrawable()
+    std::unique_ptr<world::Object> Factory::CreateObject()
     {
-        return std::make_unique<Drawable>(m_device);
+        return std::make_unique<world::Object>(m_device);
     }
 
     std::unique_ptr<Shader> Factory::CreateShader()
@@ -51,9 +52,7 @@ namespace x::render
         UINT flags = 0;
 
         if constexpr (core::XDEBUG)
-        {
             flags |= D3D11_CREATE_DEVICE_DEBUG;
-        }
 
         D3D_FEATURE_LEVEL featureLevels[] =
         {

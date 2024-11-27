@@ -1,6 +1,6 @@
 #include "d3d11mesh.hpp"
 
-#include "exception.hpp"
+#include "pch.h"
 
 namespace x::render
 {

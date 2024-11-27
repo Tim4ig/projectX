@@ -1,6 +1,6 @@
 #include "d3d11drawable.hpp"
 
-#include "exception.hpp"
+#include "pch.h"
 
 namespace x::render
 {
