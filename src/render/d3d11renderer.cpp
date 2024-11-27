@@ -4,7 +4,7 @@
 
 namespace x::render
 {
-    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_window(window), m_device(device)
+    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_window(window), m_device(device), m_constantBuffer(device)
     {
         m_InitWindowStyles();
         m_Init();
@@ -71,7 +71,7 @@ namespace x::render
         hr = m_swapChain->Present(m_settings.vsync, 0) HTHROW("failed to present swap chain");
     }
 
-    void Renderer::Bind(Shader& shader)
+    void Renderer::Bind(const Shader& shader)
     {
         if (m_framestate == false)
             XTHROW("frame not started");
@@ -84,7 +84,7 @@ namespace x::render
         }
     }
 
-    void Renderer::Bind(ConstantBuffer& constantBuffer, const int slot)
+    void Renderer::Bind(const ConstantBuffer& constantBuffer, const int slot)
     {
         if (m_framestate == false)
             XTHROW("frame not started");
@@ -93,6 +93,21 @@ namespace x::render
         {
             if (constantBuffer.m_buffer)
                 m_context->VSSetConstantBuffers(slot, 1, constantBuffer.m_buffer.GetAddressOf());
+        }
+    }
+
+    void Renderer::Bind(Camera& camera)
+    {
+        if (m_framestate == false)
+            XTHROW("frame not started");
+
+        {
+            camera.UpdateProjectionMatrix(m_viewport.Width / m_viewport.Height, 0.25f * std::numbers::pi_v<float>);
+            camera.UpdateViewProjectionMatrix();
+            const auto viewProjectionMatrix = camera.GetViewProjectionMatrix();
+
+            m_constantBuffer.m_SetData(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
+            Bind(m_constantBuffer, 0);
         }
     }
 

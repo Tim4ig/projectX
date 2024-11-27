@@ -46,6 +46,10 @@ namespace x::core
     {
         if (!m_window->IsOpen()) return false;
 
+        static render::Camera camera;
+        camera.UpdateProjectionMatrix(800.0f / 600.0f, 0.25f * 3.14159265359f);
+
+
         if (GetAsyncKeyState(VK_SPACE))
             m_renderer->SetResolution({2560, 1440});
 
@@ -54,6 +58,7 @@ namespace x::core
 
         m_renderer->BeginFrame();
         m_renderer->Clear();
+        m_renderer->Bind(camera);
         m_renderer->Bind(*m_shaderTest);
         m_renderer->Draw(*m_drawableTest);
         m_renderer->EndFrame();

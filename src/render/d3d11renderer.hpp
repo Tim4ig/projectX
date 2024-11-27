@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "resources/d3d11camera.hpp"
 #include "resources/d3d11drawable.hpp"
 #include "resources/d3d11shader.hpp"
 #include "resources/d3d11constant.hpp"
@@ -26,8 +27,10 @@ namespace x::render
         void EndFrame();
 
         void Draw(Drawable& drawable);
-        void Bind(Shader& shader);
-        void Bind(ConstantBuffer& constantBuffer, int slot);
+
+        void Bind(const Shader& shader);
+        void Bind(const ConstantBuffer& constantBuffer, int slot);
+        void Bind(Camera& camera);
 
     private:
         HWND m_window;
@@ -42,6 +45,8 @@ namespace x::render
         ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 
         D3D11_VIEWPORT m_viewport;
+
+        ConstantBuffer m_constantBuffer;
 
         bool m_framestate = false;
 

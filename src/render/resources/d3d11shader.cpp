@@ -84,7 +84,7 @@ namespace x::render
                 inputLayoutDesc.emplace_back(elementDesc);
             }
 
-            hr = m_device->CreateInputLayout(inputLayoutDesc.data(), inputLayoutDesc.size(), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &m_inputLayout);
+            hr = m_device->CreateInputLayout(inputLayoutDesc.data(), inputLayoutDesc.size(), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &m_inputLayout) HTHROW("Failed to create input layout");
         }
         else
         {
