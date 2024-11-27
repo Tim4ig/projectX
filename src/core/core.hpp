@@ -5,7 +5,7 @@
 #include "window.hpp"
 #include "render/d3d11factory.hpp"
 #include "render/d3d11renderer.hpp"
-#include "render/resources/d3d11drawable.hpp"
+#include "world/object/object.hpp"
 
 namespace x::core
 {
@@ -27,7 +27,7 @@ namespace x::core
         bool m_UserLoop();
         bool m_SystemLoop();
 
-        std::unique_ptr<render::Drawable> m_drawableTest;
+        std::unique_ptr<world::Object> m_drawableTest;
         std::unique_ptr<render::Shader> m_shaderTest;
     };
 }

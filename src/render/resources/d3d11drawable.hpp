@@ -9,7 +9,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace x::render
 {
-    class Drawable : public Mesh, ConstantBuffer
+    class Drawable : public Mesh, public ConstantBuffer
     {
     public:
         explicit Drawable(const ComPtr<ID3D11Device>& device) : Mesh(device), ConstantBuffer(device), m_device(device)
