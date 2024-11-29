@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "render/resources/d3d11camera.hpp"
+#include "render/resources/camera.hpp"
 
 #include "logger.hpp"
 

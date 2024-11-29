@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resources/d3d11drawable.hpp"
+#include "resources/drawable.hpp"
 
 namespace x::world
 {

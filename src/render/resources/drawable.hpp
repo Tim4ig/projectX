@@ -1,7 +1,7 @@
 #pragma once
 
-#include "d3d11mesh.hpp"
-#include "d3d11constant.hpp"
+#include "mesh.hpp"
+#include "constant.hpp"
 
 using Microsoft::WRL::ComPtr;
 

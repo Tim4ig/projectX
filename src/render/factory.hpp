@@ -5,9 +5,9 @@
 #include <memory>
 #include <wrl/client.h>
 
-#include "d3d11renderer.hpp"
-#include "resources/d3d11drawable.hpp"
-#include "resources/d3d11shader.hpp"
+#include "renderer.hpp"
+#include "resources/drawable.hpp"
+#include "resources/shader.hpp"
 
 using Microsoft::WRL::ComPtr;
 

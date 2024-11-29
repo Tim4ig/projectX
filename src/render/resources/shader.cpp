@@ -1,4 +1,4 @@
-#include "d3d11shader.hpp"
+#include "shader.hpp"
 
 #include <d3dcompiler.h>
 

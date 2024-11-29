@@ -4,10 +4,10 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "resources/d3d11camera.hpp"
-#include "resources/d3d11drawable.hpp"
-#include "resources/d3d11shader.hpp"
-#include "resources/d3d11constant.hpp"
+#include "resources/camera.hpp"
+#include "resources/drawable.hpp"
+#include "resources/shader.hpp"
+#include "resources/constant.hpp"
 
 using Microsoft::WRL::ComPtr;
 

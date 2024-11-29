@@ -1,10 +1,8 @@
 #pragma once
 
-#include "pch.h"
-
 #include "window.hpp"
-#include "render/d3d11factory.hpp"
-#include "render/d3d11renderer.hpp"
+#include "render/factory.hpp"
+#include "render/renderer.hpp"
 #include "world/object/object.hpp"
 
 namespace x::core
