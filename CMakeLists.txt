@@ -15,6 +15,7 @@ include_directories("src/core/utils")
 include_directories("src/core/window")
 include_directories("src/render")
 include_directories("src/world")
+include_directories("dep/tinygltf-release")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /ZI")

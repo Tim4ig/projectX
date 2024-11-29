@@ -4,23 +4,34 @@
 
 namespace x::world
 {
-    class DrawableWrapper : public render::Drawable
+    class DrawableWrapper
     {
     public:
-        explicit DrawableWrapper(const ComPtr<ID3D11Device>& device) : Drawable(device)
+        explicit DrawableWrapper(std::unique_ptr<render::Drawable>& drawable) : m_drawable(std::move(drawable))
         {
         }
 
-        void SetVertecis(const void* rawMem, const UINT64 count, const UINT64 stride)
+        virtual ~DrawableWrapper() = default;
+
+        void m_SetVertecis(const void* rawMem, const UINT64 count, const UINT64 size) const
         {
-            m_SetVertices(rawMem, count, stride);
+            m_drawable->SetVertices(rawMem, count, size);
         }
 
-        void SetConstantBuffer(const void* rawMem, const UINT64 size)
+        operator render::Drawable& () const
         {
-            m_SetData(rawMem, size);
+            return *m_drawable;
         }
 
-        virtual ~DrawableWrapper() override = default;
+    private:
+        std::unique_ptr<render::Drawable> m_drawable;
+
+    protected:
+
+        void m_SetConstantBuffer(const void* rawMem, const UINT64 size) const
+        {
+            m_drawable->SetConstantData(rawMem, size);
+        }
+
     };
 }

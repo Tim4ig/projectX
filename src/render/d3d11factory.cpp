@@ -2,7 +2,6 @@
 
 #include "pch.h"
 #include "settings.hpp"
-#include "object/object.hpp"
 
 namespace x::render
 {
@@ -16,9 +15,9 @@ namespace x::render
         return std::make_unique<Renderer>(m_device, window);
     }
 
-    std::unique_ptr<world::Object> Factory::CreateObject()
+    std::unique_ptr<Drawable> Factory::CreateDrawable()
     {
-        return std::make_unique<world::Object>(m_device);
+        return std::make_unique<Drawable>(m_device);
     }
 
     std::unique_ptr<Shader> Factory::CreateShader()

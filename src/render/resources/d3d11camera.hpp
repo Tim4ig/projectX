@@ -28,7 +28,7 @@ namespace x::render
 
         void UpdateViewMatrix()
         {
-            XMStoreFloat3(&m_target, DirectX::XMVector4Normalize(XMLoadFloat3(&m_target)));
+            XMStoreFloat3(&m_target, DirectX::XMVector3Normalize(XMLoadFloat3(&m_target)));
             const auto up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
             const auto focus = DirectX::XMVectorAdd(XMLoadFloat3(&m_position), XMLoadFloat3(&m_target));
 

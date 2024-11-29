@@ -2,6 +2,11 @@
 
 #include "pch.h"
 
+#include "develop/camera_controller.hpp"
+
+#include "filesystem/gltf/gltfLoader.hpp"
+#include "filesystem/gltf/gltfConvert.hpp"
+
 namespace x::core
 {
     Core::~Core()
@@ -17,20 +22,20 @@ namespace x::core
 
         m_window->OpenAsync(L"X Engine", 800, 600);
         m_renderer = m_factory->CreateRenderer(m_window->GetHandle());
+        m_renderer->SetResolution({ 1920,1080 });
 
-        m_drawableTest = m_factory->CreateObject();
+        auto drawable = m_factory->CreateDrawable();
+        m_drawableTest = std::unique_ptr<world::Object>(new world::Object(drawable));
         m_shaderTest = m_factory->CreateShader();
 
         m_shaderTest->Load(L"Debug/test.vs.cso", L"Debug/test.ps.cso", nullptr, 0);
 
-        constexpr float vertices[] =
-        {
-            -0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f,
-            0.5f, -0.5f, 0.0f,
-        };
+        std::vector<BYTE> vertices;
+        const auto box = fs::gltfLoader::LoadModelFromFile("../resources/fox.glb");
+        fs::gltfConverter::ModelToRawVertexData(*box, vertices);
+        constexpr auto stride = (3 + 3 + 2) * sizeof(float);
 
-        m_drawableTest->SetVertecis(vertices, 3, sizeof(float) * 3 * 3);
+        m_drawableTest->m_SetVertecis(vertices.data(), vertices.size() / stride, vertices.size());
     }
 
     void Core::StartLoop()
@@ -47,14 +52,10 @@ namespace x::core
         if (!m_window->IsOpen()) return false;
 
         static render::Camera camera;
+        static develop::CameraController cameraController(&camera);
         camera.UpdateProjectionMatrix(800.0f / 600.0f, 0.25f * 3.14159265359f);
 
-
-        if (GetAsyncKeyState(VK_SPACE))
-            m_renderer->SetResolution({2560, 1440});
-
-        if (GetAsyncKeyState(VK_RETURN))
-            m_renderer->SetResolution({800, 600});
+        cameraController.Update();
 
         m_renderer->BeginFrame();
         m_renderer->Clear();

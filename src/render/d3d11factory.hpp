@@ -6,7 +6,6 @@
 #include <wrl/client.h>
 
 #include "d3d11renderer.hpp"
-#include "object/object.hpp"
 #include "resources/d3d11drawable.hpp"
 #include "resources/d3d11shader.hpp"
 
@@ -20,7 +19,7 @@ namespace x::render
         Factory();
 
         std::unique_ptr<Renderer> CreateRenderer(HWND window);
-        std::unique_ptr<world::Object> CreateObject();
+        std::unique_ptr<Drawable> CreateDrawable();
         std::unique_ptr<Shader> CreateShader();
 
     private:

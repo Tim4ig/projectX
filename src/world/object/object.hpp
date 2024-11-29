@@ -8,7 +8,7 @@ namespace x::world
     class Object : public DrawableWrapper, public Transform
     {
     public:
-        explicit Object(const ComPtr<ID3D11Device>& device) : DrawableWrapper(device)
+        explicit Object(std::unique_ptr<render::Drawable>& drawable) : DrawableWrapper(drawable)
         {
             Update();
         }
@@ -17,7 +17,7 @@ namespace x::world
         {
             Transform::Update();
             auto const matrix = GetWorldMatrix();
-            m_SetData(&matrix, sizeof(matrix));
+            m_SetConstantBuffer(&matrix, sizeof(matrix));
         }
 
         ~Object() override = default;

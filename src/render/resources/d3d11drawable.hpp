@@ -1,7 +1,5 @@
 #pragma once
 
-#include "pch.h"
-
 #include "d3d11mesh.hpp"
 #include "d3d11constant.hpp"
 

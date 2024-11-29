@@ -106,7 +106,7 @@ namespace x::render
             camera.UpdateViewProjectionMatrix();
             const auto viewProjectionMatrix = camera.GetViewProjectionMatrix();
 
-            m_constantBuffer.m_SetData(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
+            m_constantBuffer.SetConstantData(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
             Bind(m_constantBuffer, 0);
         }
     }

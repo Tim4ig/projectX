@@ -16,18 +16,16 @@ namespace x::render
 
         virtual ~Mesh() = default;
 
+        void SetVertices(const void* vertices, UINT vertexCount, UINT size);
 
     private:
         ComPtr<ID3D11Device> m_device;
 
         UINT m_stride = 0;
-        UINT m_vertexSize = 0;
+        UINT m_size = 0;
         UINT m_vertexCount = 0;
         ComPtr<ID3D11Buffer> m_vertexBuffer;
 
         friend class Renderer;
-
-    protected:
-        void m_SetVertices(const void* vertices, UINT vertexCount, UINT vertexSize);
     };
 }

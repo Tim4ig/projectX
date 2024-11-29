@@ -4,16 +4,16 @@
 
 namespace x::render
 {
-    void Mesh::m_SetVertices(const void* vertices, const UINT vertexCount, const UINT vertexSize)
+    void Mesh::SetVertices(const void* vertices, const UINT vertexCount, const UINT size)
     {
         auto hr = S_OK;
 
         m_vertexCount = vertexCount;
-        m_vertexSize = vertexSize;
-        m_stride = vertexSize / vertexCount;
+        m_size = size;
+        m_stride = size / vertexCount;
 
         D3D11_BUFFER_DESC bufferDesc = {};
-        bufferDesc.ByteWidth = vertexCount * vertexSize;
+        bufferDesc.ByteWidth = size;
         bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
         D3D11_SUBRESOURCE_DATA subresourceData = {};
