@@ -59,6 +59,8 @@ namespace x::render
 
         m_context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
         m_context->RSSetViewports(1, &m_viewport);
+
+        m_context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
     }
 
     void Renderer::EndFrame()
@@ -96,6 +98,15 @@ namespace x::render
         }
     }
 
+    void Renderer::Bind(const Texture& texture, const int slot)
+    {
+        if (m_framestate == false)
+            XTHROW("frame not started");
+
+        if (texture.m_shaderResourceView)
+            m_context->PSSetShaderResources(slot, 1, texture.m_shaderResourceView.GetAddressOf());
+    }
+
     void Renderer::Bind(Camera& camera)
     {
         if (m_framestate == false)
@@ -116,8 +127,11 @@ namespace x::render
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        auto& constantBuffer = static_cast<ConstantBuffer&>(drawable);
+        const auto& constantBuffer = static_cast<ConstantBuffer&>(drawable);
+        const auto& texture = static_cast<Texture&>(drawable);
+
         Bind(constantBuffer, 1);
+        Bind(texture, 0);
 
         // test draw implementation
         {
@@ -153,6 +167,7 @@ namespace x::render
 
         m_InitSwapChain();
         m_InitBuffers();
+        m_InitPipeline();
     }
 
     void Renderer::m_InitSwapChain()
@@ -225,5 +240,21 @@ namespace x::render
         SetWindowLongPtr(m_window, GWL_EXSTYLE, exStyle);
 
         SetWindowPos(m_window, HWND_TOP, 0, 0, 800, 600, SWP_FRAMECHANGED | SWP_NOMOVE);
+    }
+
+    void Renderer::m_InitPipeline()
+    {
+        auto hr = S_OK;
+
+        D3D11_SAMPLER_DESC sd = {};
+        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+        sd.MinLOD = 0;
+        sd.MaxLOD = D3D11_FLOAT32_MAX;
+
+        hr = m_device->CreateSamplerState(&sd, &m_samplerState) HTHROW("failed to create sampler state");
     }
 }

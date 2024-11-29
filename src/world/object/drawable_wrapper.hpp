@@ -18,6 +18,11 @@ namespace x::world
             m_drawable->SetVertices(rawMem, count, size);
         }
 
+        void m_SetTexture(const fs::Texture& texture) const
+        {
+            m_drawable->SetTexture(texture);
+        }
+
         operator render::Drawable& () const
         {
             return *m_drawable;

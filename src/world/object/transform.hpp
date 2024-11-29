@@ -32,14 +32,9 @@ namespace x::world
             m_rotation = rotation;
         }
 
-        void SetRotation(const DirectX::XMFLOAT3& rotation)
-        {
-            m_rotation = DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
-        }
-
         void SetRotation(const DirectX::XMFLOAT4& rotation)
         {
-            m_rotation = DirectX::XMMatrixRotationQuaternion(DirectX::XMLoadFloat4(&rotation));
+            m_rotation = DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
         }
 
         void Translate(const DirectX::XMFLOAT3& translation)
@@ -78,9 +73,8 @@ namespace x::world
     protected:
         virtual void Update()
         {
-            m_worldMatrix = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) *
-                m_rotation *
-                DirectX::XMMatrixTranslation(m_position.x, m_position.y, m_position.z);
+            m_worldMatrix =
+                m_rotation;
         }
     };
 }

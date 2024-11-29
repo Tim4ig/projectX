@@ -2,15 +2,16 @@
 
 #include "mesh.hpp"
 #include "constant.hpp"
+#include "texture.hpp"
 
 using Microsoft::WRL::ComPtr;
 
 namespace x::render
 {
-    class Drawable : public Mesh, public ConstantBuffer
+    class Drawable : public Mesh, public ConstantBuffer, public Texture
     {
     public:
-        explicit Drawable(const ComPtr<ID3D11Device>& device) : Mesh(device), ConstantBuffer(device), m_device(device)
+        explicit Drawable(const ComPtr<ID3D11Device>& device) : Mesh(device), ConstantBuffer(device), Texture(device), m_device(device)
         {
         }
 

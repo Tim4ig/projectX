@@ -10,6 +10,7 @@ namespace x::core
     class Core
     {
     public:
+        Core();
         ~Core();
 
         void Init();

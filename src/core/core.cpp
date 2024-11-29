@@ -6,11 +6,18 @@
 
 #include "filesystem/gltf/gltfLoader.hpp"
 #include "filesystem/gltf/gltfConvert.hpp"
+#include "filesystem/textures/textureLoader.hpp"
 
 namespace x::core
 {
+    Core::Core()
+    {
+        const auto hr = CoInitialize(nullptr) HTHROW("Failed to initialize COM");
+    }
+
     Core::~Core()
     {
+        std::atexit([] { CoUninitialize(); });
     }
 
     void Core::Init()
@@ -31,11 +38,20 @@ namespace x::core
         m_shaderTest->Load(L"Debug/test.vs.cso", L"Debug/test.ps.cso", nullptr, 0);
 
         std::vector<BYTE> vertices;
-        const auto box = fs::gltfLoader::LoadModelFromFile("../resources/fox.glb");
+        const auto box = fs::gltfLoader::LoadModelFromFile("../resources/untitled.glb");
         fs::gltfConverter::ModelToRawVertexData(*box, vertices);
         constexpr auto stride = (3 + 3 + 2) * sizeof(float);
 
+        auto testT = fs::TextureLoader::LoadFromMemory(box->images[box->textures[0].source].image.data(), box->images[box->textures[0].source].image.size());
+        testT.width = box->images[box->textures[0].source].width;
+        testT.height = box->images[box->textures[0].source].height;
+
         m_drawableTest->m_SetVertecis(vertices.data(), vertices.size() / stride, vertices.size());
+        m_drawableTest->m_SetTexture(testT);
+        DirectX::XMFLOAT4 rot;
+        DirectX::XMStoreFloat4(&rot, DirectX::XMVectorSet(3.14f, 0, 0, 0));
+        m_drawableTest->SetRotation(rot);
+        m_drawableTest->Update();
     }
 
     void Core::StartLoop()

@@ -1,10 +1,13 @@
 struct VSIN
 {
     float3 position : POSITION;
+    float2 texCoord : TEXCOORD0;
+    float3 normal : NORMAL;
 };
 
 struct VSOUT
 {
+    float2 texCoord : TEXCOORD0;
     float4 position : SV_POSITION;
 };
 
@@ -22,5 +25,6 @@ VSOUT main(VSIN input)
 {
     VSOUT output;
     output.position = mul(gViewProj, mul(float4(input.position, 1.0f), gTest));
+    output.texCoord = input.texCoord;
     return output;
 }

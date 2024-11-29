@@ -8,6 +8,7 @@
 #include "resources/drawable.hpp"
 #include "resources/shader.hpp"
 #include "resources/constant.hpp"
+#include "resources/texture.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -30,6 +31,7 @@ namespace x::render
 
         void Bind(const Shader& shader);
         void Bind(const ConstantBuffer& constantBuffer, int slot);
+        void Bind(const Texture& texture, int slot);
         void Bind(Camera& camera);
 
     private:
@@ -43,6 +45,8 @@ namespace x::render
 
         ComPtr<ID3D11RenderTargetView> m_renderTargetView;
         ComPtr<ID3D11DepthStencilView> m_depthStencilView;
+
+        ComPtr<ID3D11SamplerState> m_samplerState;
 
         D3D11_VIEWPORT m_viewport;
 
@@ -60,5 +64,6 @@ namespace x::render
         void m_InitSwapChain();
         void m_InitBuffers();
         void m_InitWindowStyles();
+        void m_InitPipeline();
     };
 }
