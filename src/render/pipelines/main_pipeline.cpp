@@ -1,46 +1,26 @@
 #include "main_pipeline.hpp"
 
+#include "settings.hpp"
+
 namespace x::render::pipeline
 {
-    void MainPipeline::Resize(const POINT size)
+    void MainPipeline::BeginFrame(const ComPtr<ID3D11RenderTargetView>& rtv, const ComPtr<ID3D11DepthStencilView>& dsv)
     {
-        m_viewport.Width = static_cast<FLOAT>(size.x);
-        m_viewport.Height = static_cast<FLOAT>(size.y);
+        if (rtv == nullptr || dsv == nullptr)
+            XTHROW("invalid render target view or depth stencil view");
 
-        m_context->OMSetRenderTargets(0, nullptr, nullptr);
-        m_renderTargetView.Reset();
-        m_depthStencilView.Reset();
+        m_renderTargetView = rtv;
+        m_depthStencilView = dsv;
 
-        auto hr = S_OK;
-        hr = m_swapChain->ResizeBuffers(0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
-
-        m_InitBuffers();
-    }
-
-    void MainPipeline::SetClearColor(const unsigned int rgba)
-    {
-        m_clearColor[0] = static_cast<float>(rgba >> 24 & 0xFF) / 255.0f;
-        m_clearColor[1] = static_cast<float>(rgba >> 16 & 0xFF) / 255.0f;
-        m_clearColor[2] = static_cast<float>(rgba >> 8 & 0xFF) / 255.0f;
-        m_clearColor[3] = static_cast<float>(rgba & 0xFF) / 255.0f;
-    }
-
-    void MainPipeline::Clear() const
-    {
-        m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_clearColor);
-        m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    }
-
-    void MainPipeline::BeginFrame()
-    {
         m_context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
-        m_context->RSSetViewports(1, &m_viewport);
-
         m_context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+        Bind(*m_shader);
     }
 
     void MainPipeline::EndFrame()
     {
+        m_renderTargetView.Reset();
+        m_depthStencilView.Reset();
     }
 
     void MainPipeline::Draw(const std::vector<const Drawable*>& queue) const
@@ -55,6 +35,8 @@ namespace x::render::pipeline
 
                     for (const auto& primitive : drawable->m_meshes[node.mesh].m_primitives)
                     {
+                        Bind(primitive.m_material);
+
                         constexpr UINT offset = 0;
                         const auto stride = static_cast<UINT>(primitive.m_stride);
 
@@ -70,6 +52,11 @@ namespace x::render::pipeline
 
             drawNode(drawable->m_root);
         }
+    }
+
+    void MainPipeline::Bind(const drawable::Material& material) const
+    {
+        Bind(material.baseColorTexture, 0);
     }
 
     void MainPipeline::Bind(const Shader& shader) const
@@ -121,30 +108,12 @@ namespace x::render::pipeline
 
         hr = m_device->CreateSamplerState(&sd, &m_samplerState) HTHROW("failed to create sampler state");
 
-        m_InitBuffers();
+        m_InitShader();
     }
 
-    void MainPipeline::m_InitBuffers()
+    void MainPipeline::m_InitShader()
     {
-        auto hr = S_OK;
-
-        ComPtr<ID3D11Texture2D> rtt;
-        hr = m_swapChain->GetBuffer(0, IID_PPV_ARGS(&rtt)) HTHROW("failed to get back buffer");
-        hr = m_device->CreateRenderTargetView(rtt.Get(), nullptr, &m_renderTargetView) HTHROW("failed to create render target view");
-
-        {
-            D3D11_TEXTURE2D_DESC dstd = {};
-            dstd.Width = static_cast<UINT>(m_viewport.Width);
-            dstd.Height = static_cast<UINT>(m_viewport.Height);
-            dstd.MipLevels = 1;
-            dstd.ArraySize = 1;
-            dstd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-            dstd.SampleDesc.Count = 1;
-            dstd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-            ComPtr<ID3D11Texture2D> dst;
-            hr = m_device->CreateTexture2D(&dstd, nullptr, &dst) HTHROW("failed to create depth stencil texture");
-            hr = m_device->CreateDepthStencilView(dst.Get(), nullptr, &m_depthStencilView) HTHROW("failed to create depth stencil view");
-        }
+        m_shader = std::make_unique<Shader>(m_device);
+        m_shader->Load(core::SHADER_PATH + L"test.vs.cso", core::SHADER_PATH + L"test.ps.cso", nullptr, 0);
     }
 }

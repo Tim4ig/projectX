@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tiny_gltf.h>
+
 #include "pch.h"
 
 #include <wincodec.h>
@@ -12,6 +14,7 @@ namespace x::fs
     {
     public:
         static Texture LoadFromMemory(const BYTE* data, SIZE_T size);
+        static Texture LoadFromModelIndex(const tinygltf::Model& model, const int index);
 
     private:
         static ComPtr<IWICImagingFactory> m_factory;

@@ -42,6 +42,15 @@ namespace x::fs
         return texture;
     }
 
+    Texture TextureLoader::LoadFromModelIndex(const tinygltf::Model& model, const int index)
+    {
+        const auto& texture = model.images[model.textures[index].source];
+        auto result = LoadFromMemory(texture.image.data(), texture.image.size());
+        result.height = texture.height;
+        result.width = texture.width;
+        return result;
+    }
+
     void TextureLoader::m_Init()
     {
         const auto hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&m_factory)) HTHROW("Failed to create WIC factory");

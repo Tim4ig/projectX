@@ -31,11 +31,9 @@ namespace x::core
 
         auto drawable = m_factory->CreateDrawable();
         m_drawableTest = std::unique_ptr<world::Object>(new world::Object(drawable));
-        m_shaderTest = m_factory->CreateShader();
-
-        m_shaderTest->Load(L"Debug/test.vs.cso", L"Debug/test.ps.cso", nullptr, 0);
-
-        m_drawableTest->InitFromFile("../resources/wmn.glb");
+        m_drawableTest->InitFromFile("../resources/a.glb");
+        m_drawableTest->SetRotation(-1.6, 0, 0);
+        m_drawableTest->Update();
     }
 
     void Core::StartLoop()
@@ -60,7 +58,6 @@ namespace x::core
         m_renderer->BeginFrame();
         m_renderer->Clear();
         m_renderer->Bind(camera);
-        m_renderer->Bind(*m_shaderTest);
         m_renderer->Draw(*m_drawableTest);
         m_renderer->EndFrame();
 

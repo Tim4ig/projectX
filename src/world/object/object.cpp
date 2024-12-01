@@ -1,9 +1,13 @@
 #include "object.hpp"
 
+#include <stb_image_write.h>
+
 #include "resources/drawable/mesh.hpp"
 
 #include "filesystem/gltf/gltfLoader.hpp"
 #include "filesystem/gltf/gltfConvert.hpp"
+#include "filesystem/textures/textureLoader.hpp"
+
 #include "resources/drawable/vertex.hpp"
 
 void x::world::Object::InitFromFile(const std::string& file) const
@@ -25,7 +29,19 @@ void x::world::Object::InitFromFile(const std::string& file) const
 
             myPrimitive.SetVertices(vertices.data(), vertices.size(), render::drawable::VERTEX_STRIDE);
 
-            //TODO: load material to primitive
+            do
+            {
+                if (primitive.material == -1) break;
+                const auto& material = model->materials[primitive.material];
+
+                myPrimitive.m_material.name = material.name;
+
+                if (material.pbrMetallicRoughness.baseColorTexture.index == -1) break;
+                const auto& baseColorTexture = fs::TextureLoader::LoadFromModelIndex(*model, material.pbrMetallicRoughness.baseColorTexture.index);
+
+                myPrimitive.m_material.baseColorTexture.SetTexture(baseColorTexture);
+            }
+            while (false);
         }
     }
 
@@ -39,7 +55,7 @@ void x::world::Object::InitFromFile(const std::string& file) const
 
         {
             if (!node.translation.empty())
-                myNode.transform.SetPosition(node.rotation[0], node.rotation[1], node.rotation[2]);
+                myNode.transform.SetPosition(node.translation[0], node.translation[1], node.translation[2]);
 
             if (!node.rotation.empty())
                 myNode.transform.SetRotation(node.rotation[0], node.rotation[1], node.rotation[2]);
@@ -61,7 +77,6 @@ void x::world::Object::InitFromFile(const std::string& file) const
 
 void x::world::Object::Update()
 {
-    m_transform.Update();
-    const auto matrix = m_transform.GetWorldMatrix();
-    m_drawable->m_root.Update(matrix);
+    Transform::Update();
+    m_drawable->m_root.Update(Transform::GetWorldMatrix());
 }

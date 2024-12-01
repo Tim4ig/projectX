@@ -9,7 +9,7 @@
 #include "resources/drawable/drawable.hpp"
 #include "resources/shader.hpp"
 #include "resources/constant.hpp"
-#include "resources/texture.hpp"
+#include "resources/drawable/texture.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -22,7 +22,7 @@ namespace x::render
         ~Renderer();
 
         void SetResolution(POINT size);
-        void SetClearColor(unsigned int rgba) const;
+        void SetClearColor(unsigned int rgba);
 
         void Clear() const;
         void BeginFrame();
@@ -45,6 +45,8 @@ namespace x::render
         ComPtr<IDXGISwapChain1> m_swapChain;
 
         D3D11_VIEWPORT m_viewport;
+        ComPtr<ID3D11RenderTargetView> m_renderTargetView;
+        ComPtr<ID3D11DepthStencilView> m_depthStencilView;
 
         std::vector<const Drawable*> m_renderQueue;
 
@@ -55,11 +57,13 @@ namespace x::render
         struct
         {
             bool vsync = false;
+            float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
         } m_settings;
 
         void m_Init();
         void m_InitSwapChain();
         void m_InitWindowStyles() const;
+        void m_InitBuffers();
         void m_InitPipelines();
     };
 }

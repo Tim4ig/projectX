@@ -1,40 +1,37 @@
 #pragma once
 
+#include "pipeline.hpp"
 #include "resources/camera.hpp"
 #include "resources/constant.hpp"
 #include "resources/shader.hpp"
-#include "resources/texture.hpp"
+#include "resources/drawable/texture.hpp"
 #include "resources/drawable/drawable.hpp"
 
 namespace x::render::pipeline
 {
-    class MainPipeline
+    class MainPipeline : public IPipeline
     {
     public:
-        explicit MainPipeline(const ComPtr<ID3D11Device>& device, const ComPtr<IDXGISwapChain>& swapChain) : m_device(device), m_swapChain(swapChain), m_constantBuffer(device)
+        explicit MainPipeline(const ComPtr<ID3D11Device>& device) : m_device(device), m_constantBuffer(device)
         {
             m_device->GetImmediateContext(&m_context);
             m_Init();
         }
 
-        void Resize(POINT size);
-        void SetClearColor(unsigned int rgba);
+        void BeginFrame(const ComPtr<ID3D11RenderTargetView>& rtv, const ComPtr<ID3D11DepthStencilView>& dsv) override;
+        void EndFrame() override;
 
-        void Clear() const;
-        void BeginFrame();
-        void EndFrame();
+        void Draw(const std::vector<const Drawable*>& queue) const override;
 
-        void Draw(const std::vector<const Drawable*>& queue) const;
-
-        void Bind(const Shader& shader) const;
-        void Bind(const ConstantBuffer& constantBuffer, int slot) const;
-        void Bind(const Texture& texture, int slot) const;
-        void Bind(Camera& camera);
+        void Bind(const drawable::Material& material) const override;
+        void Bind(const Shader& shader) const override;
+        void Bind(const ConstantBuffer& constantBuffer, int slot) const override;
+        void Bind(const Texture& texture, int slot) const override;
+        void Bind(Camera& camera) override;
 
     private:
         ComPtr<ID3D11Device> m_device;
         ComPtr<ID3D11DeviceContext> m_context;
-        ComPtr<IDXGISwapChain> m_swapChain;
 
         ComPtr<ID3D11RenderTargetView> m_renderTargetView;
         ComPtr<ID3D11DepthStencilView> m_depthStencilView;
@@ -44,9 +41,11 @@ namespace x::render::pipeline
         ConstantBuffer m_constantBuffer;
         D3D11_VIEWPORT m_viewport;
 
-        float m_clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        std::unique_ptr<Shader> m_shader;
+
+        float m_clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 
         void m_Init();
-        void m_InitBuffers();
+        void m_InitShader();
     };
 }

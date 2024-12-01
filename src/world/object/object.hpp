@@ -21,7 +21,6 @@ namespace x::world
         operator render::Drawable*() const { return m_drawable.get(); }
 
     private:
-        Transform m_transform;
         std::unique_ptr<render::Drawable> m_drawable;
     };
 }

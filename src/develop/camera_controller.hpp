@@ -71,8 +71,13 @@ namespace x::develop
             if (GetAsyncKeyState(VK_SHIFT))
                 tranlation = DirectX::XMVectorAdd(tranlation, DirectX::XMVectorSet(0, -1, 0, 0));
 
+            static float speed = 1;
+
+            if (GetAsyncKeyState('T')) speed += 0.1f;
+            if (GetAsyncKeyState('Y')) speed -= 0.1f;
+
             DirectX::XMFLOAT3 translation;
-            tranlation = DirectX::XMVectorMultiply(tranlation, DirectX::XMVectorSet(0.1f, 0.1f, 0.1f, 0));
+            tranlation = DirectX::XMVectorMultiply(tranlation, DirectX::XMVectorSet(0.1f * speed, 0.1f * speed, 0.1f * speed, 0));
             DirectX::XMStoreFloat3(&translation, tranlation);
 
             m_camera->Move(translation);

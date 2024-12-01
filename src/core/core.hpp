@@ -27,6 +27,5 @@ namespace x::core
         bool m_SystemLoop();
 
         std::unique_ptr<world::Object> m_drawableTest;
-        std::unique_ptr<render::Shader> m_shaderTest;
     };
 }

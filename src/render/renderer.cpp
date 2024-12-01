@@ -14,9 +14,12 @@ namespace x::render
     {
     }
 
-    void Renderer::SetClearColor(const unsigned int rgba) const
+    void Renderer::SetClearColor(const unsigned int rgba)
     {
-        m_mainPipeline->SetClearColor(rgba);
+        m_settings.clearColor[0] = static_cast<float>(rgba >> 24 & 0xFF) / 255.0f;
+        m_settings.clearColor[1] = static_cast<float>(rgba >> 16 & 0xFF) / 255.0f;
+        m_settings.clearColor[2] = static_cast<float>(rgba >> 8 & 0xFF) / 255.0f;
+        m_settings.clearColor[3] = static_cast<float>(rgba & 0xFF) / 255.0f;
     }
 
     void Renderer::Clear() const
@@ -24,7 +27,8 @@ namespace x::render
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        m_mainPipeline->Clear();
+        m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_settings.clearColor);
+        m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     }
 
     void Renderer::SetResolution(const POINT size)
@@ -35,9 +39,16 @@ namespace x::render
         m_viewport.Width = static_cast<FLOAT>(size.x);
         m_viewport.Height = static_cast<FLOAT>(size.y);
 
-        m_mainPipeline->Resize(size);
+        m_context->OMSetRenderTargets(0, nullptr, nullptr);
+        m_renderTargetView.Reset();
+        m_depthStencilView.Reset();
+
+        auto hr = S_OK;
+        hr = m_swapChain->ResizeBuffers(0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
 
         SetWindowPos(m_window, nullptr, 0, 0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), SWP_NOMOVE | SWP_NOZORDER);
+
+        m_InitBuffers();
     }
 
     void Renderer::BeginFrame()
@@ -52,18 +63,20 @@ namespace x::render
         if (m_framestate == false)
             XTHROW("frame already ended");
 
-        m_framestate = false;
+        auto hr = S_OK;
+
+        m_context->RSSetViewports(1, &m_viewport);
 
         {
-            m_mainPipeline->BeginFrame();
+            m_mainPipeline->BeginFrame(m_renderTargetView, m_depthStencilView);
             m_mainPipeline->Draw(m_renderQueue);
             m_mainPipeline->EndFrame();
         }
 
         m_renderQueue.clear();
 
-        auto hr = S_OK;
         hr = m_swapChain->Present(m_settings.vsync, 0) HTHROW("failed to present swap chain");
+        m_framestate = false;
     }
 
     void Renderer::Bind(const Shader& shader) const
@@ -127,6 +140,7 @@ namespace x::render
         m_viewport.MaxDepth = 1.0f;
 
         m_InitSwapChain();
+        m_InitBuffers();
         m_InitPipelines();
     }
 
@@ -178,8 +192,32 @@ namespace x::render
         SetWindowPos(m_window, HWND_TOP, 0, 0, 800, 600, SWP_FRAMECHANGED | SWP_NOMOVE);
     }
 
+    void Renderer::m_InitBuffers()
+    {
+        auto hr = S_OK;
+
+        ComPtr<ID3D11Texture2D> rtt;
+        hr = m_swapChain->GetBuffer(0, IID_PPV_ARGS(&rtt)) HTHROW("failed to get back buffer");
+        hr = m_device->CreateRenderTargetView(rtt.Get(), nullptr, &m_renderTargetView) HTHROW("failed to create render target view");
+
+        {
+            D3D11_TEXTURE2D_DESC dstd = {};
+            dstd.Width = static_cast<UINT>(m_viewport.Width);
+            dstd.Height = static_cast<UINT>(m_viewport.Height);
+            dstd.MipLevels = 1;
+            dstd.ArraySize = 1;
+            dstd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+            dstd.SampleDesc.Count = 1;
+            dstd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+            ComPtr<ID3D11Texture2D> dst;
+            hr = m_device->CreateTexture2D(&dstd, nullptr, &dst) HTHROW("failed to create depth stencil texture");
+            hr = m_device->CreateDepthStencilView(dst.Get(), nullptr, &m_depthStencilView) HTHROW("failed to create depth stencil view");
+        }
+    }
+
     void Renderer::m_InitPipelines()
     {
-        m_mainPipeline = std::make_unique<pipeline::MainPipeline>(m_device, m_swapChain);
+        m_mainPipeline = std::make_unique<pipeline::MainPipeline>(m_device);
     }
 }
