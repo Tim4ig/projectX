@@ -1,25 +1,27 @@
 #pragma once
 
-#include "drawable_wrapper.hpp"
-#include "transform.hpp"
+#include "render/resources/drawable/transform.hpp"
+#include "render/resources/drawable/drawable.hpp"
 
 namespace x::world
 {
-    class Object : public DrawableWrapper, public Transform
+    class Object : public render::drawable::Transform
     {
     public:
-        explicit Object(std::unique_ptr<render::Drawable>& drawable) : DrawableWrapper(drawable)
+        explicit Object(std::unique_ptr<render::drawable::Drawable>& drawable) : m_drawable(std::move(drawable))
         {
             Update();
         }
 
-        void Update() override
-        {
-            Transform::Update();
-            auto const matrix = GetWorldMatrix();
-            m_SetConstantBuffer(&matrix, sizeof(matrix));
-        }
-
         ~Object() override = default;
+
+        void Update() override;
+        void InitFromFile(const std::string& file) const;
+
+        operator render::drawable::Drawable&() const { return *m_drawable; }
+
+    private:
+        Transform m_transform;
+        std::unique_ptr<render::drawable::Drawable> m_drawable;
     };
 }

@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "render/resources/camera.hpp"
@@ -18,14 +17,14 @@ namespace x::develop
         {
             auto tranlation = DirectX::XMVectorSet(0, 0, 0, 0);
 
-            static bool isRightButtonPressed = false;
+            static auto isRightButtonPressed = false;
 
             DirectX::XMFLOAT3 offset;
 
-            static float a = std::numbers::pi_v<float> / 2;
-            static float b = std::numbers::pi_v<float> / 2;
+            static auto a = std::numbers::pi_v<float> / 2;
+            static auto b = std::numbers::pi_v<float> / 2;
 
-            static POINT lastCursorPos = { 600,600 };
+            static POINT lastCursorPos = {600, 600};
             if (GetAsyncKeyState(VK_RBUTTON))
             {
                 POINT cursorPos;
@@ -43,16 +42,13 @@ namespace x::develop
 
                 a += offsetX;
                 b += offsetY;
-
             }
             else
-            {
                 isRightButtonPressed = false;
-            }
 
-            float x = cos(a) * sin(b);
-            float y = cos(b);
-            float z = sin(a) * sin(b);
+            auto x = cos(a) * sin(b);
+            auto y = cos(b);
+            auto z = sin(a) * sin(b);
 
             DirectX::XMStoreFloat3(&offset, DirectX::XMVectorSet(x, y, z, 0));
 
@@ -61,31 +57,19 @@ namespace x::develop
             isRightButtonPressed = true;
 
             if (GetAsyncKeyState('W'))
-            {
                 tranlation = DirectX::XMVectorAdd(tranlation, DirectX::XMLoadFloat3(&offset));
-            }
             if (GetAsyncKeyState('S'))
-            {
                 tranlation = DirectX::XMVectorSubtract(tranlation, DirectX::XMLoadFloat3(&offset));
-            }
 
             if (GetAsyncKeyState('A'))
-            {
                 tranlation = DirectX::XMVectorAdd(tranlation, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&offset), DirectX::XMVectorSet(0, 1, 0, 0)));
-            }
             if (GetAsyncKeyState('D'))
-            {
                 tranlation = DirectX::XMVectorAdd(tranlation, DirectX::XMVector3Cross(DirectX::XMLoadFloat3(&offset), DirectX::XMVectorSet(0, -1, 0, 0)));
-            }
 
             if (GetAsyncKeyState(VK_SPACE))
-            {
                 tranlation = DirectX::XMVectorAdd(tranlation, DirectX::XMVectorSet(0, 1, 0, 0));
-            }
             if (GetAsyncKeyState(VK_SHIFT))
-            {
                 tranlation = DirectX::XMVectorAdd(tranlation, DirectX::XMVectorSet(0, -1, 0, 0));
-            }
 
             DirectX::XMFLOAT3 translation;
             tranlation = DirectX::XMVectorMultiply(tranlation, DirectX::XMVectorSet(0.1f, 0.1f, 0.1f, 0));

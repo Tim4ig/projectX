@@ -4,14 +4,14 @@ namespace x::fs
 {
     Texture TextureLoader::LoadFromMemory(const BYTE* data, const SIZE_T size)
     {
-        // if (!m_factory) m_Init();
-
         auto hr = S_OK;
 
         Texture texture;
 
-        if (0)
+        // tinygltf load image automatically using stb_image so we don't need to use WIC
+        if (false)
         {
+            if (!m_factory) m_Init();
             ComPtr<IWICStream> stream;
             ComPtr<IWICBitmapDecoder> decoder;
             ComPtr<IWICBitmapFrameDecode> frame;
@@ -20,7 +20,7 @@ namespace x::fs
             hr = m_factory->CreateStream(&stream) HTHROW("Failed to create WIC stream");
             hr = stream->InitializeFromMemory(const_cast<BYTE*>(data), static_cast<DWORD>(size)) HTHROW("Failed to initialize WIC stream");
             hr = m_factory->CreateDecoderFromStream(stream.Get(), nullptr, WICDecodeMetadataCacheOnLoad, &decoder)
-                HTHROW("Failed to create WIC decoder");
+            HTHROW("Failed to create WIC decoder");
             hr = decoder->GetFrame(0, &frame) HTHROW("Failed to get WIC frame");
             hr = m_factory->CreateFormatConverter(&converter) HTHROW("Failed to create WIC format converter");
             hr = converter->Initialize(frame.Get(), GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom) HTHROW("Failed to initialize WIC format converter");

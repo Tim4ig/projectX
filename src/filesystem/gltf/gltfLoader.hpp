@@ -8,6 +8,7 @@ namespace x::fs
     {
     public:
         static std::unique_ptr<tinygltf::Model> LoadModelFromFile(const std::string& path);
+
     private:
         static tinygltf::TinyGLTF m_loader;
     };

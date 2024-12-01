@@ -24,7 +24,8 @@ cbuffer cb1 : register(b1)
 VSOUT main(VSIN input)
 {
     VSOUT output;
-    output.position = mul(gViewProj, mul(float4(input.position, 1.0f), gTest));
+    output.position = mul(gViewProj, mul(gTest, float4(input.position, 1.0f)));
+    // output.position = mul(gViewProj, float4(input.position, 1.0f));
     output.texCoord = input.texCoord;
     return output;
 }

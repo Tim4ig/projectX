@@ -117,32 +117,38 @@ namespace x::render
             camera.UpdateViewProjectionMatrix();
             const auto viewProjectionMatrix = camera.GetViewProjectionMatrix();
 
-            m_constantBuffer.SetConstantData(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
+            m_constantBuffer.SetConstantBuffer(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
             Bind(m_constantBuffer, 0);
         }
     }
 
-    void Renderer::Draw(Drawable& drawable)
+    void Renderer::Draw(const drawable::Drawable& drawable)
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        const auto& constantBuffer = static_cast<ConstantBuffer&>(drawable);
-        const auto& texture = static_cast<Texture&>(drawable);
-
-        Bind(constantBuffer, 1);
-        Bind(texture, 0);
-
-        // test draw implementation
+        std::function<void(const drawable::Node&)> drawNode = [&](const drawable::Node& node)
         {
-            const auto mesh = static_cast<Mesh&>(drawable);
+            if (node.mesh != -1)
+            {
+                Bind(node.constantBuffer, 1);
 
-            constexpr UINT offset = 0;
-            const auto stride = mesh.m_stride;
-            m_context->IASetVertexBuffers(0, 1, mesh.m_vertexBuffer.GetAddressOf(), &stride, &offset);
-            m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-            m_context->Draw(mesh.m_vertexCount, 0);
-        }
+                for (const auto& primitive : drawable.m_meshes[node.mesh].m_primitives)
+                {
+                    constexpr UINT offset = 0;
+                    const auto stride = static_cast<UINT>(primitive.m_stride);
+
+                    m_context->IASetVertexBuffers(0, 1, primitive.m_vertexBuffer.GetAddressOf(), &stride, &offset);
+                    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+                    m_context->Draw(primitive.m_vertexCount, 0);
+                }
+            }
+
+            for (const auto& child : node.children)
+                drawNode(child);
+        };
+
+        drawNode(drawable.m_root);
     }
 
     void Renderer::m_Init()

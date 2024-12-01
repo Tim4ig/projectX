@@ -20,7 +20,7 @@ namespace x::render
         srd.SysMemPitch = texture.width * 4;
 
         hr = m_device->CreateTexture2D(&td, &srd, &m_texture)
-            HTHROW("Failed to create texture2D");
+        HTHROW("Failed to create texture2D");
         hr = m_device->CreateShaderResourceView(m_texture.Get(), nullptr, &m_shaderResourceView) HTHROW("Failed to create shader resource view");
     }
 }

@@ -1,9 +1,5 @@
 #include "core.hpp"
 #include "logger.hpp"
-#include "filesystem/gltf/gltfLoader.hpp"
-#include "filesystem/textures/textureLoader.hpp"
-
-#include <fstream>
 
 int main()
 {

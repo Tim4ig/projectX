@@ -4,7 +4,7 @@
 
 namespace x::render
 {
-    void ConstantBuffer::SetConstantData(const void* data, const UINT dataSize)
+    void ConstantBuffer::SetConstantBuffer(const void* data, const size_t dataSize)
     {
         auto hr = S_OK;
 

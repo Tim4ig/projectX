@@ -17,7 +17,7 @@ PSOUT main(PSIN input)
 
     float4 texColor = myTexture.Sample(mySampler, input.texCoord);
 
-    output.color = texColor;
+    output.color = float4(1, 0, 0, 1);
 
     return output;
 }

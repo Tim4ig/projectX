@@ -7,6 +7,6 @@ namespace x::fs
     class gltfConverter
     {
     public:
-        static void ModelToRawVertexData(tinygltf::Model& model, std::vector<BYTE>& raw);
+        static void PrimitiveToRaw(const tinygltf::Model& model, const tinygltf::Primitive& primitive, std::vector<BYTE>& raw);
     };
 }

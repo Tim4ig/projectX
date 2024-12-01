@@ -1,13 +1,11 @@
 #pragma once
 
-#include "pch.h"
-
 namespace x::render
 {
     class Camera
     {
     public:
-        Camera() : m_position({ 0.0f, 0.0f, -5.0f }), m_target({ 0.0f, 0.0f, 1.0f }), m_scale({ 1.0f, 1.0f, 1.0f })
+        Camera() : m_position({0.0f, 0.0f, -5.0f}), m_target({0.0f, 0.0f, 1.0f}), m_scale({1.0f, 1.0f, 1.0f})
         {
             m_viewMatrix = DirectX::XMMatrixIdentity();
             m_projectionMatrix = DirectX::XMMatrixIdentity();
@@ -22,14 +20,31 @@ namespace x::render
         [[nodiscard]] DirectX::XMFLOAT3 GetRotation() const { return m_target; }
         [[nodiscard]] DirectX::XMFLOAT3 GetScale() const { return m_scale; }
 
-        void Move(const DirectX::XMFLOAT3& direction) { m_position.x += direction.x; m_position.y += direction.y; m_position.z += direction.z; }
-        void Rotate(const DirectX::XMFLOAT3& rotation) { m_target.x += rotation.x; m_target.y += rotation.y; m_target.z += rotation.z; }
-        void Scale(const DirectX::XMFLOAT3& scale) { m_scale.x += scale.x; m_scale.y += scale.y; m_scale.z += scale.z; }
+        void Move(const DirectX::XMFLOAT3& direction)
+        {
+            m_position.x += direction.x;
+            m_position.y += direction.y;
+            m_position.z += direction.z;
+        }
+
+        void Rotate(const DirectX::XMFLOAT3& rotation)
+        {
+            m_target.x += rotation.x;
+            m_target.y += rotation.y;
+            m_target.z += rotation.z;
+        }
+
+        void Scale(const DirectX::XMFLOAT3& scale)
+        {
+            m_scale.x += scale.x;
+            m_scale.y += scale.y;
+            m_scale.z += scale.z;
+        }
 
         void UpdateViewMatrix()
         {
             XMStoreFloat3(&m_target, DirectX::XMVector3Normalize(XMLoadFloat3(&m_target)));
-            const auto up = DirectX::XMVectorSet(0.0f,1.0f, 0.0f, 1.0f);
+            const auto up = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
             const auto focus = DirectX::XMVectorAdd(XMLoadFloat3(&m_position), XMLoadFloat3(&m_target));
 
             m_viewMatrix = DirectX::XMMatrixLookAtLH(XMLoadFloat3(&m_position), focus, up);

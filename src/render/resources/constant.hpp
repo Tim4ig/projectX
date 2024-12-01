@@ -14,9 +14,9 @@ namespace x::render
         {
         }
 
-        virtual ~ConstantBuffer() = default;
+        void SetConstantBuffer(const void* data, size_t dataSize);
 
-        void SetConstantData(const void* data, UINT dataSize);
+        virtual ~ConstantBuffer() = default;
 
     private:
         ComPtr<ID3D11Device> m_device;

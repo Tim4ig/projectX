@@ -5,7 +5,7 @@
 #include <wrl/client.h>
 
 #include "resources/camera.hpp"
-#include "resources/drawable.hpp"
+#include "resources/drawable/drawable.hpp"
 #include "resources/shader.hpp"
 #include "resources/constant.hpp"
 #include "resources/texture.hpp"
@@ -27,7 +27,7 @@ namespace x::render
         void BeginFrame();
         void EndFrame();
 
-        void Draw(Drawable& drawable);
+        void Draw(const drawable::Drawable& drawable);
 
         void Bind(const Shader& shader);
         void Bind(const ConstantBuffer& constantBuffer, int slot);
