@@ -15,6 +15,7 @@ namespace x::render
         }
 
         void SetConstantBuffer(const void* data, size_t dataSize);
+        ComPtr<ID3D11Buffer> GetBuffer() const { return m_buffer; }
 
         virtual ~ConstantBuffer() = default;
 
@@ -25,7 +26,5 @@ namespace x::render
         ComPtr<ID3D11Buffer> m_buffer;
 
         void m_CreateBuffer(UINT dataSize);
-
-        friend class Renderer;
     };
 }

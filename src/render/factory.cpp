@@ -15,9 +15,9 @@ namespace x::render
         return std::make_unique<Renderer>(m_device, window);
     }
 
-    std::unique_ptr<drawable::Drawable> Factory::CreateDrawable()
+    std::unique_ptr<Drawable> Factory::CreateDrawable()
     {
-        return std::make_unique<drawable::Drawable>(m_device);
+        return std::make_unique<Drawable>(m_device);
     }
 
     std::unique_ptr<Shader> Factory::CreateShader()

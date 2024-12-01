@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "pipelines/main_pipeline.hpp"
 #include "resources/camera.hpp"
 #include "resources/drawable/drawable.hpp"
 #include "resources/shader.hpp"
@@ -21,18 +22,18 @@ namespace x::render
         ~Renderer();
 
         void SetResolution(POINT size);
-        void SetClearColor(unsigned int rgba);
+        void SetClearColor(unsigned int rgba) const;
 
-        void Clear();
+        void Clear() const;
         void BeginFrame();
         void EndFrame();
 
-        void Draw(const drawable::Drawable& drawable);
+        void Draw(const Drawable* drawable);
 
-        void Bind(const Shader& shader);
-        void Bind(const ConstantBuffer& constantBuffer, int slot);
-        void Bind(const Texture& texture, int slot);
-        void Bind(Camera& camera);
+        void Bind(const Shader& shader) const;
+        void Bind(const ConstantBuffer& constantBuffer, int slot) const;
+        void Bind(const Texture& texture, int slot) const;
+        void Bind(Camera& camera) const;
 
     private:
         HWND m_window;
@@ -43,27 +44,22 @@ namespace x::render
         ComPtr<IDXGIFactory2> m_dxgiFactory;
         ComPtr<IDXGISwapChain1> m_swapChain;
 
-        ComPtr<ID3D11RenderTargetView> m_renderTargetView;
-        ComPtr<ID3D11DepthStencilView> m_depthStencilView;
-
-        ComPtr<ID3D11SamplerState> m_samplerState;
-
         D3D11_VIEWPORT m_viewport;
 
-        ConstantBuffer m_constantBuffer;
+        std::vector<const Drawable*> m_renderQueue;
 
         bool m_framestate = false;
+
+        std::unique_ptr<pipeline::MainPipeline> m_mainPipeline;
 
         struct
         {
             bool vsync = false;
-            float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
         } m_settings;
 
         void m_Init();
         void m_InitSwapChain();
-        void m_InitBuffers();
-        void m_InitWindowStyles();
-        void m_InitPipeline();
+        void m_InitWindowStyles() const;
+        void m_InitPipelines();
     };
 }

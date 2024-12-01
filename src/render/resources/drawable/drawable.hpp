@@ -4,7 +4,7 @@
 #include "resources/constant.hpp"
 #include "resources/drawable/mesh.hpp"
 
-namespace x::render::drawable
+namespace x::render
 {
     class Drawable
     {
@@ -15,8 +15,8 @@ namespace x::render::drawable
 
         ComPtr<ID3D11Device> m_device;
 
-        Node m_root;
-        std::vector<Mesh> m_meshes;
+        drawable::Node m_root;
+        std::vector<drawable::Mesh> m_meshes;
 
     private:
         friend class Renderer;

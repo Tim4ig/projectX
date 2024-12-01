@@ -12,6 +12,7 @@ namespace x::render
         }
 
         void SetTexture(const fs::Texture& texture);
+        ComPtr<ID3D11ShaderResourceView> GetShaderResourceView() const { return m_shaderResourceView; }
 
         virtual ~Texture() = default;
 
@@ -20,7 +21,5 @@ namespace x::render
 
         ComPtr<ID3D11Texture2D> m_texture;
         ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
-
-        friend class Renderer;
     };
 }

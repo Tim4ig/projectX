@@ -14,7 +14,7 @@ namespace x::render
         Factory();
 
         std::unique_ptr<Renderer> CreateRenderer(HWND window);
-        std::unique_ptr<drawable::Drawable> CreateDrawable();
+        std::unique_ptr<Drawable> CreateDrawable();
         std::unique_ptr<Shader> CreateShader();
 
     private:

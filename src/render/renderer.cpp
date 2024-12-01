@@ -4,7 +4,7 @@
 
 namespace x::render
 {
-    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_window(window), m_device(device), m_constantBuffer(device)
+    Renderer::Renderer(const ComPtr<ID3D11Device>& device, const HWND window) : m_window(window), m_device(device)
     {
         m_InitWindowStyles();
         m_Init();
@@ -14,21 +14,17 @@ namespace x::render
     {
     }
 
-    void Renderer::SetClearColor(const unsigned int rgba)
+    void Renderer::SetClearColor(const unsigned int rgba) const
     {
-        m_settings.clearColor[0] = static_cast<float>(rgba >> 24 & 0xFF) / 255.0f;
-        m_settings.clearColor[1] = static_cast<float>(rgba >> 16 & 0xFF) / 255.0f;
-        m_settings.clearColor[2] = static_cast<float>(rgba >> 8 & 0xFF) / 255.0f;
-        m_settings.clearColor[3] = static_cast<float>(rgba & 0xFF) / 255.0f;
+        m_mainPipeline->SetClearColor(rgba);
     }
 
-    void Renderer::Clear()
+    void Renderer::Clear() const
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_settings.clearColor);
-        m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+        m_mainPipeline->Clear();
     }
 
     void Renderer::SetResolution(const POINT size)
@@ -39,16 +35,9 @@ namespace x::render
         m_viewport.Width = static_cast<FLOAT>(size.x);
         m_viewport.Height = static_cast<FLOAT>(size.y);
 
-        m_context->OMSetRenderTargets(0, nullptr, nullptr);
-        m_renderTargetView.Reset();
-        m_depthStencilView.Reset();
-
-        auto hr = S_OK;
-        hr = m_swapChain->ResizeBuffers(0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), DXGI_FORMAT_UNKNOWN, 0) HTHROW("failed to resize buffers");
+        m_mainPipeline->Resize(size);
 
         SetWindowPos(m_window, nullptr, 0, 0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), SWP_NOMOVE | SWP_NOZORDER);
-
-        m_InitBuffers();
     }
 
     void Renderer::BeginFrame()
@@ -56,99 +45,65 @@ namespace x::render
         if (m_framestate == true)
             XTHROW("frame already started");
         m_framestate = true;
-
-        m_context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
-        m_context->RSSetViewports(1, &m_viewport);
-
-        m_context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
     }
 
     void Renderer::EndFrame()
     {
         if (m_framestate == false)
             XTHROW("frame already ended");
+
         m_framestate = false;
+
+        {
+            m_mainPipeline->BeginFrame();
+            m_mainPipeline->Draw(m_renderQueue);
+            m_mainPipeline->EndFrame();
+        }
+
+        m_renderQueue.clear();
 
         auto hr = S_OK;
         hr = m_swapChain->Present(m_settings.vsync, 0) HTHROW("failed to present swap chain");
     }
 
-    void Renderer::Bind(const Shader& shader)
+    void Renderer::Bind(const Shader& shader) const
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        // test bind implementation
-        {
-            m_context->IASetInputLayout(shader.m_inputLayout.Get());
-            m_context->VSSetShader(shader.m_vertexShader.Get(), nullptr, 0);
-            m_context->PSSetShader(shader.m_pixelShader.Get(), nullptr, 0);
-        }
+        m_mainPipeline->Bind(shader);
     }
 
-    void Renderer::Bind(const ConstantBuffer& constantBuffer, const int slot)
+    void Renderer::Bind(const ConstantBuffer& constantBuffer, const int slot) const
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        // test bind implementation
-        {
-            if (constantBuffer.m_buffer)
-                m_context->VSSetConstantBuffers(slot, 1, constantBuffer.m_buffer.GetAddressOf());
-        }
+        m_mainPipeline->Bind(constantBuffer, slot);
     }
 
-    void Renderer::Bind(const Texture& texture, const int slot)
+    void Renderer::Bind(const Texture& texture, const int slot) const
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        if (texture.m_shaderResourceView)
-            m_context->PSSetShaderResources(slot, 1, texture.m_shaderResourceView.GetAddressOf());
+        m_mainPipeline->Bind(texture, slot);
     }
 
-    void Renderer::Bind(Camera& camera)
+    void Renderer::Bind(Camera& camera) const
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        {
-            camera.UpdateProjectionMatrix(m_viewport.Width / m_viewport.Height, 0.25f * std::numbers::pi_v<float>);
-            camera.UpdateViewProjectionMatrix();
-            const auto viewProjectionMatrix = camera.GetViewProjectionMatrix();
-
-            m_constantBuffer.SetConstantBuffer(&viewProjectionMatrix, sizeof(viewProjectionMatrix));
-            Bind(m_constantBuffer, 0);
-        }
+        m_mainPipeline->Bind(camera);
     }
 
-    void Renderer::Draw(const drawable::Drawable& drawable)
+    void Renderer::Draw(const Drawable* drawable)
     {
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        std::function<void(const drawable::Node&)> drawNode = [&](const drawable::Node& node)
-        {
-            if (node.mesh != -1)
-            {
-                Bind(node.constantBuffer, 1);
-
-                for (const auto& primitive : drawable.m_meshes[node.mesh].m_primitives)
-                {
-                    constexpr UINT offset = 0;
-                    const auto stride = static_cast<UINT>(primitive.m_stride);
-
-                    m_context->IASetVertexBuffers(0, 1, primitive.m_vertexBuffer.GetAddressOf(), &stride, &offset);
-                    m_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-                    m_context->Draw(primitive.m_vertexCount, 0);
-                }
-            }
-
-            for (const auto& child : node.children)
-                drawNode(child);
-        };
-
-        drawNode(drawable.m_root);
+        m_renderQueue.emplace_back(drawable);
     }
 
     void Renderer::m_Init()
@@ -172,8 +127,7 @@ namespace x::render
         m_viewport.MaxDepth = 1.0f;
 
         m_InitSwapChain();
-        m_InitBuffers();
-        m_InitPipeline();
+        m_InitPipelines();
     }
 
     void Renderer::m_InitSwapChain()
@@ -206,31 +160,7 @@ namespace x::render
         hr = dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER | DXGI_MWA_NO_WINDOW_CHANGES) HTHROW("failed to make window association");
     }
 
-    void Renderer::m_InitBuffers()
-    {
-        auto hr = S_OK;
-
-        ComPtr<ID3D11Texture2D> rtt;
-        hr = m_swapChain->GetBuffer(0, IID_PPV_ARGS(&rtt)) HTHROW("failed to get back buffer");
-        hr = m_device->CreateRenderTargetView(rtt.Get(), nullptr, &m_renderTargetView) HTHROW("failed to create render target view");
-
-        {
-            D3D11_TEXTURE2D_DESC dstd = {};
-            dstd.Width = static_cast<UINT>(m_viewport.Width);
-            dstd.Height = static_cast<UINT>(m_viewport.Height);
-            dstd.MipLevels = 1;
-            dstd.ArraySize = 1;
-            dstd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-            dstd.SampleDesc.Count = 1;
-            dstd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-            ComPtr<ID3D11Texture2D> dst;
-            hr = m_device->CreateTexture2D(&dstd, nullptr, &dst) HTHROW("failed to create depth stencil texture");
-            hr = m_device->CreateDepthStencilView(dst.Get(), nullptr, &m_depthStencilView) HTHROW("failed to create depth stencil view");
-        }
-    }
-
-    void Renderer::m_InitWindowStyles()
+    void Renderer::m_InitWindowStyles() const
     {
         auto style = GetWindowLongPtr(m_window, GWL_STYLE);
         auto exStyle = GetWindowLongPtr(m_window, GWL_EXSTYLE);
@@ -248,19 +178,8 @@ namespace x::render
         SetWindowPos(m_window, HWND_TOP, 0, 0, 800, 600, SWP_FRAMECHANGED | SWP_NOMOVE);
     }
 
-    void Renderer::m_InitPipeline()
+    void Renderer::m_InitPipelines()
     {
-        auto hr = S_OK;
-
-        D3D11_SAMPLER_DESC sd = {};
-        sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-        sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-        sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
-        sd.MinLOD = 0;
-        sd.MaxLOD = D3D11_FLOAT32_MAX;
-
-        hr = m_device->CreateSamplerState(&sd, &m_samplerState) HTHROW("failed to create sampler state");
+        m_mainPipeline = std::make_unique<pipeline::MainPipeline>(m_device, m_swapChain);
     }
 }
