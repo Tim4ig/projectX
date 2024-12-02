@@ -51,7 +51,7 @@ namespace x::core
 
         static render::Camera camera;
         static develop::CameraController cameraController(&camera);
-        camera.UpdateProjectionMatrix(800.0f / 600.0f, 0.25f * 3.14159265359f);
+        camera.UpdateProjectionMatrix(800.0f / 600.0f, 0.25f * std::numbers::pi_v<float>);
 
         cameraController.Update();
 
