@@ -4,6 +4,23 @@
 
 namespace x::render::pipeline
 {
+    MainPipeline::MainPipeline(const ComPtr<ID3D11Device>& device) : m_device(device), m_constantBuffer(device)
+    {
+        m_Init();
+    }
+
+    void MainPipeline::Clear() const
+    {
+        m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_clearColor);
+        m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+    }
+
+    void MainPipeline::Resize(const POINT size)
+    {
+        m_viewport.Width = static_cast<float>(size.x);
+        m_viewport.Height = static_cast<float>(size.y);
+    }
+
     void MainPipeline::BeginFrame(const ComPtr<ID3D11RenderTargetView>& rtv, const ComPtr<ID3D11DepthStencilView>& dsv)
     {
         if (rtv == nullptr || dsv == nullptr)
@@ -12,15 +29,26 @@ namespace x::render::pipeline
         m_renderTargetView = rtv;
         m_depthStencilView = dsv;
 
+        Clear();
+
+        m_context->RSSetViewports(1, &m_viewport);
         m_context->OMSetRenderTargets(1, m_renderTargetView.GetAddressOf(), m_depthStencilView.Get());
         m_context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+
         Bind(*m_shader);
     }
 
-    void MainPipeline::EndFrame()
+    ComPtr<ID3D11CommandList> MainPipeline::EndFrame()
     {
+        auto hr = S_OK;
+
         m_renderTargetView.Reset();
         m_depthStencilView.Reset();
+
+        ComPtr<ID3D11CommandList> commandList;
+        hr = m_context->FinishCommandList(FALSE, &commandList) HTHROW("failed to finish command list");
+
+        return commandList;
     }
 
     void MainPipeline::Draw(const std::vector<const Drawable*>& queue) const
@@ -91,6 +119,8 @@ namespace x::render::pipeline
     void MainPipeline::m_Init()
     {
         auto hr = S_OK;
+
+        hr = m_device->CreateDeferredContext(0, &m_context) HTHROW("failed to create deferred context");
 
         m_viewport = {};
         m_viewport.Width = 800;

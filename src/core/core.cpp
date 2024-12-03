@@ -51,12 +51,10 @@ namespace x::core
 
         static render::Camera camera;
         static develop::CameraController cameraController(&camera);
-        camera.UpdateProjectionMatrix(800.0f / 600.0f, 0.25f * std::numbers::pi_v<float>);
 
         cameraController.Update();
 
         m_renderer->BeginFrame();
-        m_renderer->Clear();
         m_renderer->Bind(camera);
         m_renderer->Draw(*m_drawableTest);
         m_renderer->EndFrame();

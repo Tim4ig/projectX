@@ -7,9 +7,6 @@
 #include "pipelines/main_pipeline.hpp"
 #include "resources/camera.hpp"
 #include "resources/drawable/drawable.hpp"
-#include "resources/shader.hpp"
-#include "resources/constant.hpp"
-#include "resources/drawable/texture.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -22,17 +19,12 @@ namespace x::render
         ~Renderer();
 
         void SetResolution(POINT size);
-        void SetClearColor(unsigned int rgba);
 
-        void Clear() const;
         void BeginFrame();
         void EndFrame();
 
         void Draw(const Drawable* drawable);
 
-        void Bind(const Shader& shader) const;
-        void Bind(const ConstantBuffer& constantBuffer, int slot) const;
-        void Bind(const Texture& texture, int slot) const;
         void Bind(Camera& camera) const;
 
     private:

@@ -14,23 +14,6 @@ namespace x::render
     {
     }
 
-    void Renderer::SetClearColor(const unsigned int rgba)
-    {
-        m_settings.clearColor[0] = static_cast<float>(rgba >> 24 & 0xFF) / 255.0f;
-        m_settings.clearColor[1] = static_cast<float>(rgba >> 16 & 0xFF) / 255.0f;
-        m_settings.clearColor[2] = static_cast<float>(rgba >> 8 & 0xFF) / 255.0f;
-        m_settings.clearColor[3] = static_cast<float>(rgba & 0xFF) / 255.0f;
-    }
-
-    void Renderer::Clear() const
-    {
-        if (m_framestate == false)
-            XTHROW("frame not started");
-
-        m_context->ClearRenderTargetView(m_renderTargetView.Get(), m_settings.clearColor);
-        m_context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-    }
-
     void Renderer::SetResolution(const POINT size)
     {
         if (m_framestate == true)
@@ -49,6 +32,8 @@ namespace x::render
         SetWindowPos(m_window, nullptr, 0, 0, static_cast<int>(m_viewport.Width), static_cast<int>(m_viewport.Height), SWP_NOMOVE | SWP_NOZORDER);
 
         m_InitBuffers();
+
+        m_mainPipeline->Resize(size);
     }
 
     void Renderer::BeginFrame()
@@ -65,42 +50,16 @@ namespace x::render
 
         auto hr = S_OK;
 
-        m_context->RSSetViewports(1, &m_viewport);
+        m_mainPipeline->BeginFrame(m_renderTargetView, m_depthStencilView);
+        m_mainPipeline->Draw(m_renderQueue);
+        const auto mainList = m_mainPipeline->EndFrame();
 
-        {
-            m_mainPipeline->BeginFrame(m_renderTargetView, m_depthStencilView);
-            m_mainPipeline->Draw(m_renderQueue);
-            m_mainPipeline->EndFrame();
-        }
+        m_context->ExecuteCommandList(mainList.Get(), FALSE);
 
         m_renderQueue.clear();
 
         hr = m_swapChain->Present(m_settings.vsync, 0) HTHROW("failed to present swap chain");
         m_framestate = false;
-    }
-
-    void Renderer::Bind(const Shader& shader) const
-    {
-        if (m_framestate == false)
-            XTHROW("frame not started");
-
-        m_mainPipeline->Bind(shader);
-    }
-
-    void Renderer::Bind(const ConstantBuffer& constantBuffer, const int slot) const
-    {
-        if (m_framestate == false)
-            XTHROW("frame not started");
-
-        m_mainPipeline->Bind(constantBuffer, slot);
-    }
-
-    void Renderer::Bind(const Texture& texture, const int slot) const
-    {
-        if (m_framestate == false)
-            XTHROW("frame not started");
-
-        m_mainPipeline->Bind(texture, slot);
     }
 
     void Renderer::Bind(Camera& camera) const
@@ -142,6 +101,8 @@ namespace x::render
         m_InitSwapChain();
         m_InitBuffers();
         m_InitPipelines();
+
+        SetResolution({ 800, 600 });
     }
 
     void Renderer::m_InitSwapChain()
