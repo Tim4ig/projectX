@@ -12,13 +12,19 @@ namespace x::render
 
     void Shader::Load(const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
     {
-        m_Init(vertexShaderPath, pixelShaderPath, inputLayout, numElements);
+        m_Init(vertexShaderPath, L"", pixelShaderPath, inputLayout, numElements);
     }
 
-    void Shader::m_Init(const std::wstring& vertexShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
+    void Shader::Load(const std::wstring& vertexShaderPath, const std::wstring& geometryShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
+    {
+        m_Init(vertexShaderPath, geometryShaderPath, pixelShaderPath, inputLayout, numElements);
+    }
+
+    void Shader::m_Init(const std::wstring& vertexShaderPath, const std::wstring& geometryShaderPath, const std::wstring& pixelShaderPath, D3D11_INPUT_ELEMENT_DESC* inputLayout, UINT numElements)
     {
         auto hr = S_OK;
         ComPtr<ID3DBlob> vertexShaderBlob;
+        ComPtr<ID3DBlob> geometryShaderBlob;
         ComPtr<ID3DBlob> pixelShaderBlob;
 
         hr = D3DReadFileToBlob(vertexShaderPath.c_str(), &vertexShaderBlob) HTHROW("Failed to read vertex shader file");
@@ -26,6 +32,12 @@ namespace x::render
 
         hr = m_device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &m_vertexShader) HTHROW("Failed to create vertex shader");
         hr = m_device->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &m_pixelShader) HTHROW("Failed to create pixel shader");
+
+        if (!geometryShaderPath.empty())
+        {
+            hr = D3DReadFileToBlob(geometryShaderPath.c_str(), &geometryShaderBlob) HTHROW("Failed to read geometry shader file");
+            hr = m_device->CreateGeometryShader(geometryShaderBlob->GetBufferPointer(), geometryShaderBlob->GetBufferSize(), nullptr, &m_geometryShader) HTHROW("Failed to create geometry shader");
+        }
 
         m_InitInputLayout(vertexShaderBlob, inputLayout, numElements);
     }

@@ -1,6 +1,6 @@
 struct PSIN
 {
-    float2 texCoord : TEXCOORD0;
+    float4 color : COLOR;
 };
 
 struct PSOUT
@@ -12,7 +12,7 @@ PSOUT main(PSIN input)
 {
     PSOUT output;
 
-    float4 texColor = float4(1, 0, 0, 1);
+    float4 texColor = input.color;
 
     output.color = texColor;
 

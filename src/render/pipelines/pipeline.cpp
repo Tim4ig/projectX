@@ -91,6 +91,7 @@ namespace x::render::pipeline
     {
         m_context->IASetInputLayout(shader.GetInputLayout().Get());
         m_context->VSSetShader(shader.GetVertexShader().Get(), nullptr, 0);
+        m_context->GSSetShader(shader.GetGeometryShader().Get(), nullptr, 0);
         m_context->PSSetShader(shader.GetPixelShader().Get(), nullptr, 0);
     }
 
