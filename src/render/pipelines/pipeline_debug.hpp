@@ -4,10 +4,10 @@
 
 namespace x::render::pipeline
 {
-
     class PipelineDebug : public IPipeline
     {
     public:
+        explicit PipelineDebug(const ComPtr<ID3D11Device>& device);
         ~PipelineDebug() override = default;
 
         void Resize(POINT size) override;
@@ -26,20 +26,7 @@ namespace x::render::pipeline
         void Bind(Camera& camera) override;
 
     private:
-        ComPtr<ID3D11Device> m_device;
-        ComPtr<ID3D11DeviceContext> m_context;
-
-        D3D11_VIEWPORT m_viewport = {};
-        ComPtr<ID3D11RenderTargetView> m_renderTargetView;
-        ComPtr<ID3D11DepthStencilView> m_depthStencilView;
-
-        ConstantBuffer m_constantBuffer;
-        std::unique_ptr<Shader> m_shader;
-
-        float m_clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
-        void m_Init();
-        void m_InitShader();
+        void m_Init() override;
+        void m_InitShader() override;
     };
-
 }

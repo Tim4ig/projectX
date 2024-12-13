@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "pipelines/main_pipeline.hpp"
+#include "pipelines/pipeline_debug.hpp"
 #include "resources/camera.hpp"
 #include "resources/drawable/drawable.hpp"
 
@@ -44,7 +44,7 @@ namespace x::render
 
         bool m_framestate = false;
 
-        std::unique_ptr<pipeline::MainPipeline> m_mainPipeline;
+        std::unique_ptr<pipeline::PipelineDebug> m_pipelineDebug;
 
         struct
         {

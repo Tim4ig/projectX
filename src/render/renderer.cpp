@@ -33,7 +33,7 @@ namespace x::render
 
         m_InitBuffers();
 
-        m_mainPipeline->Resize(size);
+        m_pipelineDebug->Resize(size);
     }
 
     void Renderer::BeginFrame()
@@ -50,9 +50,9 @@ namespace x::render
 
         auto hr = S_OK;
 
-        m_mainPipeline->BeginFrame(m_renderTargetView, m_depthStencilView);
-        m_mainPipeline->Draw(m_renderQueue);
-        const auto mainList = m_mainPipeline->EndFrame();
+        m_pipelineDebug->BeginFrame(m_renderTargetView, m_depthStencilView);
+        m_pipelineDebug->Draw(m_renderQueue);
+        const auto mainList = m_pipelineDebug->EndFrame();
 
         m_context->ExecuteCommandList(mainList.Get(), FALSE);
 
@@ -67,7 +67,7 @@ namespace x::render
         if (m_framestate == false)
             XTHROW("frame not started");
 
-        m_mainPipeline->Bind(camera);
+        m_pipelineDebug->Bind(camera);
     }
 
     void Renderer::Draw(const Drawable* drawable)
@@ -179,6 +179,6 @@ namespace x::render
 
     void Renderer::m_InitPipelines()
     {
-        m_mainPipeline = std::make_unique<pipeline::MainPipeline>(m_device);
+        m_pipelineDebug = std::make_unique<pipeline::PipelineDebug>(m_device);
     }
 }
